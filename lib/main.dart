@@ -1,25 +1,32 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'core/injection.dart' as di;
 
+// Importe os seus arquivos aqui
+import 'features/auth/presentation/viewmodels/auth_viewmodel.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+
 void main() async {
-  // Garante que o Flutter carregue os plugins antes de rodar
+  // 1. Garante que os bindings do Flutter estejam prontos
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicializa o Firebase
+  // 2. Inicializa o Firebase com as opções geradas pelo FlutterFire
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Inicializa o GetIt
+  // 3. Inicializa a Injeção de Dependências (GetIt)
   await di.initInjection();
   
   runApp(
     MultiProvider(
       providers: [
-        // Aqui registraremos nossos Providers/ViewModels no futuro
+        // O AuthViewModel agora está disponível para todo o app
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -33,21 +40,26 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Euro Academy',
-      debugShowCheckedModeBanner: false, // Tira aquela faixa vermelha de debug
+      debugShowCheckedModeBanner: false,
+      
+      // CONFIGURAÇÃO DO TEMA MATERIAL 3
       theme: ThemeData(
-        // Seed amarelo do seu branding
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFFCC00)),
         useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'Euro Academy\nSetup Arquitetural OK!',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFFFCC00), // Amarelo Eurofarma
+          brightness: Brightness.light,
+        ),
+        // Customização global dos botões para o padrão corporativo
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            foregroundColor: Colors.black, // Cor do texto no botão amarelo
           ),
         ),
       ),
+
+      // É AQUI QUE VOCÊ DEFINE A TELA INICIAL:
+      home: const LoginPage(), 
     );
   }
 }
