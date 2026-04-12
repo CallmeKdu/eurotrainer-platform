@@ -48,13 +48,23 @@ class LoginFormPanel extends StatelessWidget {
             const SizedBox(height: 16),
             
             TextFormField(
-              obscureText: true,
+              // 1. Ocultar o texto depende do ViewModel agora:
+              obscureText: !viewModel.isPasswordVisible, 
               style: const TextStyle(color: euroBlue),
               decoration: InputDecoration(
                 labelText: 'Senha',
                 labelStyle: const TextStyle(color: euroBlue),
                 prefixIcon: const Icon(Icons.lock_outline, color: euroBlue),
-                suffixIcon: const Icon(Icons.visibility, color: euroBlue),
+                
+                // 2. O ícone virou um botão que chama a função:
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    viewModel.isPasswordVisible ? Icons.visibility_off : Icons.visibility, 
+                    color: euroBlue,
+                  ),
+                  onPressed: viewModel.togglePasswordVisibility,
+                ),
+                
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: euroBlue.withOpacity(0.5)),
                 ),
