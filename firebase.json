@@ -1,1 +1,31 @@
-{"flutter":{"platforms":{"dart":{"lib/firebase_options.dart":{"projectId":"eurotrainer-platform","configurations":{"web":"1:193998449540:web:338e5c610e8c9a03d8cbd1"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "eurotrainer-platform",
+          "configurations": {
+            "web": "1:193998449540:web:338e5c610e8c9a03d8cbd1"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
+}
