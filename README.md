@@ -6,18 +6,19 @@ A new Flutter project.
 
 This project is a starting point for a Flutter application.
 
+```mermaid
 gitGraph
-    commit id: &quot;chore: init&quot;
+    commit id: "chore: init"
     branch develop
     checkout develop
-    commit id: &quot;feat: base clean&quot;
+    commit id: "feat: base clean"
     branch feature/auth-ui
     checkout feature/auth-ui
-    commit id: &quot;feat: login panel&quot;
+    commit id: "feat: login panel"
     checkout develop
-    merge feature/auth-ui tag: &quot;PR #1&quot;
+    merge feature/auth-ui tag: "PR #1"
     branch feature/auth-validation
     checkout feature/auth-validation
-    commit id: &quot;feat: regex&quot;
+    commit id: "feat: regex"
     checkout develop
-    merge feature/auth-validation tag: &quot;PR #2&quot;
+    merge feature/auth-validation tag: "PR #2"
