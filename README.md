@@ -1,4 +1,4 @@
-# eurotrainer_platform
+# EuroAcademy
 
 A new Flutter project.
 
