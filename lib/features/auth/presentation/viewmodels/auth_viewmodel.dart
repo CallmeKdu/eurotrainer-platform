@@ -28,6 +28,7 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Chama a função generate2fa no Firebase
   Future<void> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = '';
@@ -46,15 +47,16 @@ class AuthViewModel extends ChangeNotifier {
         _currentStep = AuthStep.verify2fa;
       }
     } catch (e) {
-      _errorMessage = 'Erro de Acesso: Verifique as permissões no Google Cloud.';
-      debugPrint('Erro detalhado: $e');
+      _errorMessage = 'Erro ao conectar. Verifique as permissões no Google Cloud.';
+      debugPrint('Erro: $e');
     }
 
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> confirm2FASetup(String code) async {
+  // Chama a função verify2fa no Firebase
+  Future<void> verify2FAToken(String code) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -67,17 +69,23 @@ class AuthViewModel extends ChangeNotifier {
       });
 
       if (result.data['isValid'] == true) {
-        _isFirstLogin = false;
         _currentStep = AuthStep.authenticated;
       } else {
-        _errorMessage = 'Código inválido. Tente novamente.';
+        _errorMessage = 'Código incorreto. Tente novamente.';
       }
     } catch (e) {
-      _errorMessage = 'Erro ao validar código na nuvem.';
+      _errorMessage = 'Falha ao validar código na nuvem.';
     }
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> confirm2FASetup(String code) async {
+    await verify2FAToken(code);
+    if (_currentStep == AuthStep.authenticated) {
+      _isFirstLogin = false; 
+    }
   }
 
   void cancel2FA() {
