@@ -44,10 +44,10 @@ graph TD
     style Identity fill:#FFCA28,stroke:#333,stroke-width:2px,color:#333
 ```
 
-🚀 Como executar o projeto localmente
+## 🚀 Como executar o projeto localmente
 Para desenvolvedores, professores ou colegas de grupo que desejam clonar e testar o projeto, siga o manual abaixo.
 
-⚠️ Atenção: Como o design do projeto foi projetado especificamente para monitores largos dos laboratórios de treinamento, ele deve ser executado no navegador utilizando o renderizador CanvasKit para garantir que os gradientes e vetores funcionem perfeitamente.
+⚠️ Atenção: Como o design do projeto foi projetado especificamente para monitores, ele deve ser executado no navegador para garantir que os gradientes e vetores funcionem perfeitamente.
 
 Passo 1: Pré-requisitos
 Flutter SDK instalado.
