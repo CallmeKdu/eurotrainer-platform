@@ -72,6 +72,7 @@ class _LoginFieldsWidgetState extends State<_LoginFieldsWidget> {
 
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -88,7 +89,13 @@ class _LoginFieldsWidgetState extends State<_LoginFieldsWidget> {
               prefixIcon: Icon(Icons.email_outlined, color: euroBlue),
               border: OutlineInputBorder(),
             ),
-            validator: (value) => (value == null || value.isEmpty) ? 'Obrigatório' : null,
+            validator: (value) {
+              if (value == null || value.isEmpty) return 'Obrigatório';
+              if (!value.trim().toLowerCase().endsWith('@eurofarma.com')) {
+                return 'Use um e-mail @eurofarma.com';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 16),
           
@@ -104,6 +111,17 @@ class _LoginFieldsWidgetState extends State<_LoginFieldsWidget> {
               ),
               border: const OutlineInputBorder(),
             ),
+            validator: (value) {
+              if (value == null || value.isEmpty) return 'Obrigatório';
+              if (value.length < 8) return 'A senha deve ter no mínimo 8 caracteres';
+              if (!value.contains(RegExp(r'[A-Z]'))) return 'Deve conter uma letra maiúscula';
+              if (!value.contains(RegExp(r'[a-z]'))) return 'Deve conter uma letra minúscula';
+              if (!value.contains(RegExp(r'[0-9]'))) return 'Deve conter um número';
+              if (!value.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'))) {
+                return 'Deve conter um caractere especial';
+              }
+              return null;
+            },
           ),
 
           // EXIBIÇÃO DE ERRO DO SERVIDOR
