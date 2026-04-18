@@ -42,7 +42,7 @@ graph TD
     style UI fill:#02378F,stroke:#fff,stroke-width:2px,color:#fff
     style Auth fill:#FFCA28,stroke:#333,stroke-width:2px,color:#333
     style Identity fill:#FFCA28,stroke:#333,stroke-width:2px,color:#333
-
+```
 
 🚀 Como executar o projeto localmente
 Para desenvolvedores, professores ou colegas de grupo que desejam clonar e testar o projeto, siga o manual abaixo.
