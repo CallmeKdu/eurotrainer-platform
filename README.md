@@ -73,4 +73,31 @@ Para iniciar o servidor local, utilize o comando:
 
 flutter run -d chrome
 
-Desenvolvido por EuroTrainers (Carlos Eduardo Martins Freire | Maria Alice Sousa Santos | Pedro Henrique Lima | Thaís Mari Costa Lopes | Projeto Acadêmico FIAP - 2026
+## 🌳 Fluxo de Trabalho (Gitflow)
+
+O desenvolvimento da v1.0 seguiu o padrão Gitflow, garantindo que a `main` estivesse sempre estável enquanto as funcionalidades eram testadas na `develop`.
+
+```mermaid
+gitGraph
+    commit id: "Projeto Inicial"
+    branch develop
+    checkout develop
+    commit id: "Config base"
+    
+    branch feature/auth-2fa
+    checkout feature/auth-2fa
+    commit id: "UI Login"
+    commit id: "Firebase Auth"
+    commit id: "TOTP Logic"
+    
+    checkout develop
+    merge feature/auth-2fa
+    commit id: "Ajustes de Design"
+    
+    checkout main
+    merge develop tag: "v1.0"
+    commit id: "Lançamento Oficial 🚀"
+
+```
+Desenvolvido por EuroTrainers 
+Carlos Eduardo Martins Freire | Maria Alice Sousa Santos | Pedro Henrique Lima | Thaís Mari Costa Lopes | Projeto Acadêmico FIAP - 2026
