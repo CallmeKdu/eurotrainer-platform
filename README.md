@@ -60,7 +60,7 @@ Passo 2: Clonagem e Setup
 
 Abra o seu terminal e execute:
 # 1. Clone este repositório
-git clone [https://github.com/CallmeKdu/eurotrainer_platform.git](https://github.com/CallmeKdu/eurotrainer_platform.git)
+git clone [https://github.com/CallmeKdu/eurotrainer-platform.git](https://github.com/CallmeKdu/eurotrainer-platform.git)
 
 # 2. Entre na pasta do projeto
 cd eurotrainer_platform
