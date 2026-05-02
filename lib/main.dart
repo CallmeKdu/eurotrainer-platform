@@ -4,7 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'features/auth/presentation/viewmodels/auth_viewmodel.dart';
-import 'features/auth/presentation/pages/login_page.dart'; // <-- 1. Importamos a tela certa!
+import 'features/home/presentation/home_page.dart';
+import 'core/theme/app_theme.dart';
 import 'core/injection.dart' as di; 
 
 void main() async {
@@ -33,11 +34,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Euro Academy',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF02378F)),
-      ),
-      home: const LoginPage(), // <-- 2. A MÁGICA ACONTECE AQUI! Chamamos a página inteira.
+      theme: AppTheme.lightTheme,
+      // MODO DESENVOLVIMENTO: PULANDO LOGIN
+      // home: const LoginPage(), // <-- 2. A MÁGICA ACONTECE AQUI! Chamamos a página inteira.
+      home: const HomePage(),
     );
   }
 }

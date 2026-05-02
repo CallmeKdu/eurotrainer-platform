@@ -12,14 +12,14 @@ class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   // Cérebro visual: escolhe qual caixinha branca vai aparecer
-  Widget _buildActivePanel(AuthStep step) {
+  Widget _buildActivePanel(BuildContext context, AuthStep step) {
     switch (step) {
       case AuthStep.setup2fa:
         return const TwoFactorSetupPanel();
       case AuthStep.verify2fa:
         return const TwoFactorVerifyPanel();
       case AuthStep.authenticated:
-        return const Center(child: CircularProgressIndicator(color: Colors.white));
+        return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary));
       case AuthStep.login:
       default:
         return const LoginFormPanel();
@@ -44,7 +44,7 @@ class LoginPage extends StatelessWidget {
               });
             }
 
-            final currentPanel = _buildActivePanel(authViewModel.currentStep);
+            final currentPanel = _buildActivePanel(context, authViewModel.currentStep);
 
             // Mantemos o layout perfeito para monitores (Desktop)
             return Row(
