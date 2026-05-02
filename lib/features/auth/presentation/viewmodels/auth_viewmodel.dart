@@ -9,6 +9,9 @@ class AuthViewModel extends ChangeNotifier {
   // O ViewModel agora recebe a instância do FirebaseAuth via injeção de dependência.
   AuthViewModel(this._auth);
 
+  // Expondo o usuário logado para ser consumido por outras telas (como a Home)
+  User? get currentUser => _auth.currentUser;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -155,5 +158,17 @@ class AuthViewModel extends ChangeNotifier {
       _auth.signOut();
     }
     notifyListeners();
+  }
+
+  Future<void> logout() async {
+    _setLoading(true);
+    try {
+      await _auth.signOut();
+      _currentStep = AuthStep.login; // Reseta o passo para a tela de login
+      _errorMessage = '';
+    } catch (e) {
+      debugPrint('Erro ao fazer logout: $e');
+    }
+    _setLoading(false);
   }
 }
