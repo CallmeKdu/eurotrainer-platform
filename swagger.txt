@@ -1,0 +1,621 @@
+openapi: 3.0.3
+info:
+  title: EuroAcademy API (MVP)
+  version: 1.0.0
+  description: |
+    API MVP do EuroAcademy (Flutter → API → Firebase/Firestore).
+    Regras:
+    - Login sempre exige 2FA (TOTP).
+    - /auth/login nunca retorna token final.
+    - SCORM (Articulate 360) é entregue via URL (Storage), com metadados no Firestore.
+    - Progresso do curso é percentual (0..100).
+
+servers:
+  - url: http://localhost:8080
+    description: Local
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Courses
+
+paths:
+
+  ####################################
+  # AUTH (2FA obrigatório)
+  ####################################
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login (email/senha) -> sempre retorna desafio 2FA
+      description: |
+        Valida email/senha (Firebase Auth via backend) e retorna:
+        - 2FA_SETUP_REQUIRED (primeiro acesso / sem 2FA cadastrado)
+        - 2FA_REQUIRED (2FA já cadastrado)
+        Nunca retorna token final aqui.
+      security: []  # sem Bearer aqui
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Desafio 2FA gerado (setup ou verify)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginChallengeResponse'
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Muitas tentativas (rate limit)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/2fa/setup:
+    post:
+      tags: [Auth]
+      summary: Gerar QR Code (setup do 2FA)
+      description: |
+        Usado quando /auth/login retornou status=2FA_SETUP_REQUIRED.
+        Gera secret TOTP, salva (de forma segura) e retorna QR Code / otpauth URI.
+      security: []  # sem Bearer (ainda não há sessão)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFaSetupRequest'
+      responses:
+        '200':
+          description: QR Code/URI gerados + setupToken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFaSetupResponse'
+        '400':
+          description: Challenge inválido ou expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 2FA já está configurado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/2fa/confirm:
+    post:
+      tags: [Auth]
+      summary: Confirmar código do Authenticator e ATIVAR 2FA (primeira vez)
+      description: |
+        Valida o código TOTP informado pelo usuário (primeira configuração).
+        Se válido, habilita 2FA e retorna token final (JWT da API).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFaConfirmRequest'
+      responses:
+        '200':
+          description: 2FA ativado e login concluído
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '401':
+          description: Código 2FA inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: SetupToken inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/2fa/verify:
+    post:
+      tags: [Auth]
+      summary: Verificar código 2FA e concluir login (2FA já configurado)
+      description: |
+        Usado quando /auth/login retornou status=2FA_REQUIRED.
+        Valida o TOTP e retorna token final (JWT da API).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFaVerifyRequest'
+      responses:
+        '200':
+          description: Login concluído com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '401':
+          description: Código 2FA inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: ChallengeToken inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Muitas tentativas (rate limit)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  ####################################
+  # USERS
+  ####################################
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Dados do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil do usuário
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Token inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  ####################################
+  # COURSES (SCORM / Articulate)
+  ####################################
+
+  /courses/today:
+    get:
+      tags: [Courses]
+      summary: Cursos do dia (já filtrados no backend)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de cursos do dia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseTodayItem'
+        '204':
+          description: Nenhum curso hoje
+        '401':
+          description: Token inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{courseId}/launch:
+    get:
+      tags: [Courses]
+      summary: Retorna URL de execução do SCORM (index.html) + versão
+      description: |
+        O backend decide qual versão está ativa e retorna a URL (Storage/CDN).
+        O frontend apenas abre (iframe/webview).
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: URL pronta para reproduzir curso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseLaunchResponse'
+        '401':
+          description: Token inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Curso não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{courseId}/start:
+    post:
+      tags: [Courses]
+      summary: Marcar início do curso
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Curso iniciado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Token inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Curso não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{courseId}/progress:
+    post:
+      tags: [Courses]
+      summary: Atualizar progresso do curso (percentual 0..100)
+      description: |
+        Atualiza o progresso percentual do usuário no curso.
+        - 0 = NOT_STARTED
+        - 1..99 = IN_PROGRESS
+        - 100 = COMPLETED (mas conclusão oficial pode ser confirmada via /complete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseProgressRequest'
+      responses:
+        '200':
+          description: Progresso atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseProgressResponse'
+        '400':
+          description: Percentual inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Curso não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /courses/{courseId}/complete:
+    post:
+      tags: [Courses]
+      summary: Concluir curso e disparar emissão de certificado
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Curso concluído (certificado pode ser gerado)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseCompletionResponse'
+        '401':
+          description: Token inválido/expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Curso não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Curso já concluído
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    ####################################
+    # COMMON
+    ####################################
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Erro ao processar a solicitação
+        code:
+          type: string
+          example: SOME_ERROR_CODE
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Operação realizada com sucesso
+
+    ####################################
+    # AUTH
+    ####################################
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          example: user@empresa.com
+        password:
+          type: string
+          example: "123456"
+
+    LoginChallengeResponse:
+      type: object
+      required: [status, challengeToken]
+      properties:
+        status:
+          type: string
+          description: Sempre exigirá 2FA. Não existe status SUCCESS aqui.
+          enum: [2FA_REQUIRED, 2FA_SETUP_REQUIRED]
+        challengeToken:
+          type: string
+          description: Token temporário para continuar o fluxo 2FA
+          example: chall_abc123
+
+    TwoFaSetupRequest:
+      type: object
+      required: [challengeToken]
+      properties:
+        challengeToken:
+          type: string
+          example: chall_abc123
+
+    TwoFaSetupResponse:
+      type: object
+      required: [setupToken, otpAuthUri, qrCodeBase64]
+      properties:
+        setupToken:
+          type: string
+          description: Token temporário para confirmar ativação do 2FA
+          example: setup_xyz789
+        otpAuthUri:
+          type: string
+          description: URI padrão otpauth para o Authenticator
+          example: otpauth://totp/EuroAcademy:user@empresa.com?secret=BASE32SECRET&issuer=EuroAcademy
+        qrCodeBase64:
+          type: string
+          description: QR Code em base64 para exibição no frontend
+          example: data:image/png;base64,AAAA...
+
+    TwoFaConfirmRequest:
+      type: object
+      required: [setupToken, code]
+      properties:
+        setupToken:
+          type: string
+          example: setup_xyz789
+        code:
+          type: string
+          description: Código TOTP de 6 dígitos
+          example: "123456"
+
+    TwoFaVerifyRequest:
+      type: object
+      required: [challengeToken, code]
+      properties:
+        challengeToken:
+          type: string
+          example: chall_abc123
+        code:
+          type: string
+          description: Código TOTP de 6 dígitos
+          example: "654321"
+
+    AuthSuccessResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+          description: JWT da API (usado no Bearer)
+          example: jwt.token.aqui
+        user:
+          $ref: '#/components/schemas/User'
+
+    ####################################
+    # USERS
+    ####################################
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: u123
+        nome:
+          type: string
+          example: Carlos
+        email:
+          type: string
+          example: user@empresa.com
+        role:
+          type: string
+          example: EMPLOYEE
+
+    ####################################
+    # COURSES
+    ####################################
+
+    CourseTodayItem:
+      type: object
+      properties:
+        courseId:
+          type: string
+          example: c01
+        title:
+          type: string
+          example: Integração Corporativa
+        startTime:
+          type: string
+          example: "09:00"
+        endTime:
+          type: string
+          example: "10:00"
+        progressPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 65
+        status:
+          type: string
+          enum: [NOT_STARTED, IN_PROGRESS, COMPLETED]
+          example: IN_PROGRESS
+
+    CourseLaunchResponse:
+      type: object
+      properties:
+        courseId:
+          type: string
+          example: c01
+        version:
+          type: string
+          example: v2
+        launchUrl:
+          type: string
+          example: https://storage.googleapis.com/euroacademy/courses/c01/v2/index.html
+
+    CourseProgressRequest:
+      type: object
+      required: [progressPercent]
+      properties:
+        progressPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 65
+
+    CourseProgressResponse:
+      type: object
+      properties:
+        courseId:
+          type: string
+          example: c01
+        progressPercent:
+          type: integer
+          example: 65
+        status:
+          type: string
+          enum: [NOT_STARTED, IN_PROGRESS, COMPLETED]
+          example: IN_PROGRESS
+        message:
+          type: string
+          example: Progresso atualizado
+
+    CourseCompletionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Curso concluído
+        certificateGenerated:
+          type: boolean
+          example: true
