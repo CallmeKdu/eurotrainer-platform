@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'features/auth/presentation/viewmodels/auth_viewmodel.dart';
-import 'features/home/presentation/home_page.dart';
+import 'presentation/viewmodels/auth_viewmodel.dart';
+import 'presentation/views/login_page.dart';
 import 'core/theme/app_theme.dart';
 import 'core/injection.dart' as di; 
 
@@ -19,7 +18,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthViewModel(di.sl<FirebaseAuth>())),
+        ChangeNotifierProvider(create: (_) => di.sl<AuthViewModel>()),
       ],
       child: const MyApp(),
     ),
@@ -35,9 +34,7 @@ class MyApp extends StatelessWidget {
       title: 'Euro Academy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      // MODO DESENVOLVIMENTO: PULANDO LOGIN
-      // home: const LoginPage(), // <-- 2. A MÁGICA ACONTECE AQUI! Chamamos a página inteira.
-      home: const HomePage(),
+      home: const LoginPage(),
     );
   }
 }

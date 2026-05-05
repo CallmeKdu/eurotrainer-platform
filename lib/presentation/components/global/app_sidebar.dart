@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
-import '../../auth/presentation/pages/login_page.dart';
+import '../../viewmodels/auth_viewmodel.dart';
+import '../../views/login_page.dart';
 
 class AppSidebar extends StatelessWidget {
   const AppSidebar({super.key});
@@ -13,7 +13,7 @@ class AppSidebar extends StatelessWidget {
       width: 260,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        border: Border(right: BorderSide(color: theme.colorScheme.surfaceVariant)),
+        border: Border(right: BorderSide(color: theme.colorScheme.surfaceContainerHighest)),
       ),
       child: Column(
         children: [

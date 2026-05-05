@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
-import 'app_sidebar.dart';
-import '../../auth/presentation/pages/app_footer.dart';
+import '../viewmodels/auth_viewmodel.dart';
+import '../viewmodels/home_viewmodel.dart';
+import '../components/global/app_header.dart';
+import '../components/global/app_sidebar.dart';
+import '../components/global/app_footer.dart';
+import '../../core/injection.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Instancia a HomeViewModel exclusivamente para a HomePage
+    return ChangeNotifierProvider<HomeViewModel>(
+      create: (_) => sl<HomeViewModel>(),
+      child: const _HomePageContent(),
+    );
+  }
+}
+
+class _HomePageContent extends StatelessWidget {
+  const _HomePageContent();
 
   @override
   Widget build(BuildContext context) {
@@ -13,17 +29,14 @@ class HomePage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    // 1. Escutamos o AuthViewModel
+    // Escutamos as ViewModels necessárias
     final authViewModel = context.watch<AuthViewModel>();
-    final user = authViewModel.currentUser;
-    
-    // 2. Definimos a lógica do nome: Pega o DisplayName, se for nulo, pega a parte do e-mail antes do @
-    final String userName = user?.displayName?.isNotEmpty == true 
-        ? user!.displayName! 
-        : (user?.email?.split('@').first ?? 'Convidado');
+    final homeViewModel = context.watch<HomeViewModel>();
+    // Atualiza os dados de usuário na HomeViewModel de forma passiva
+    homeViewModel.updateUser(authViewModel.currentUser);
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -35,7 +48,7 @@ class HomePage extends StatelessWidget {
             child: Column(
               children: [
                 // Header (Topo)
-                const _Header(),
+                const AppHeader(),
                 
                 // Dashboard Content (Rolável)
                 Expanded(
@@ -49,7 +62,7 @@ class HomePage extends StatelessWidget {
                             children: [
                               // Welcome Section
                               Text(
-                                'Bem-vindo de volta, $userName.',
+                                '${homeViewModel.saudacaoTempo}, ${homeViewModel.nomeFormatado}!',
                                 style: textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: colorScheme.onSurface,
@@ -57,7 +70,7 @@ class HomePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Aqui está sua visão geral de treinamento e conformidade para hoje.',
+                                homeViewModel.fraseMotivacional,
                                 style: textTheme.bodyLarge?.copyWith(
                                   color: colorScheme.onSurfaceVariant,
                                 ),
@@ -65,34 +78,53 @@ class HomePage extends StatelessWidget {
                               const SizedBox(height: 32),
 
                               // Bento Grid
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Column(
                                 children: [
-                                  // Coluna Esquerda (Treinamento, Projetos, Notas)
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      children: [
-                                        const _TrainingCard(),
-                                        const SizedBox(height: 20),
-                                        Row(
-                                          children: const [
-                                            Expanded(child: _ProjectsCard()),
-                                            SizedBox(width: 20),
-                                            Expanded(child: _NotesCard()),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Coluna Esquerda (Treinamento, Projetos, Notas)
+                                      Expanded(
+                                        flex: 2,
+                                        child: Column(
+                                          children: [
+                                            const _TrainingCard(),
+                                            const SizedBox(height: 20),
+                                            Row(
+                                              children: const [
+                                                Expanded(child: _ProjectsCard()),
+                                                SizedBox(width: 20),
+                                                Expanded(child: _NotesCard()),
+                                              ],
+                                            ),
                                           ],
                                         ),
-                                        const SizedBox(height: 20),
-                                        const _CalendarCard(),
+                                      ),
+                                      const SizedBox(width: 20),
+                                      // Coluna Direita (Análises)
+                                      const Expanded(
+                                        flex: 1,
+                                        child: _StatsCard(),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Bottom Row (Calendário e Certificados) com mesma altura
+                                  IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: const [
+                                        Expanded(
+                                          flex: 2,
+                                          child: _CalendarCard(),
+                                        ),
+                                        SizedBox(width: 20),
+                                        Expanded(
+                                          flex: 1,
+                                          child: _CertificatesCard(),
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  
-                                  // Coluna Direita (Análises)
-                                  const Expanded(
-                                    flex: 1,
-                                    child: _StatsCard(),
                                   ),
                                 ],
                               ),
@@ -126,35 +158,6 @@ class HomePage extends StatelessWidget {
 // COMPONENTES (WIDGETS)
 // ==========================================
 
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(bottom: BorderSide(color: theme.colorScheme.surfaceVariant)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          IconButton(icon: Icon(Icons.notifications_none, color: theme.colorScheme.onSurfaceVariant), onPressed: () {}),
-          IconButton(icon: Icon(Icons.settings_outlined, color: theme.colorScheme.onSurfaceVariant), onPressed: () {}),
-          const SizedBox(width: 16),
-          const CircleAvatar(
-            radius: 16,
-            backgroundImage: NetworkImage('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // Componente Base do Bento Grid
 class _BentoCard extends StatelessWidget {
   final String? title;
@@ -170,7 +173,7 @@ class _BentoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.surfaceVariant),
+        border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -195,6 +198,46 @@ class _BentoCard extends StatelessWidget {
           ],
           child,
         ],
+      ),
+    );
+  }
+}
+
+class _CertificatesCard extends StatelessWidget {
+  const _CertificatesCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primaryContainer,
+              foregroundColor: theme.colorScheme.onPrimaryContainer,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Acessar certificados', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ),
       ),
     );
   }
@@ -297,7 +340,7 @@ class _StatsCard extends StatelessWidget {
                 CircularProgressIndicator(
                   value: 0.92,
                   strokeWidth: 12,
-                  backgroundColor: theme.colorScheme.surfaceVariant,
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
                   color: theme.colorScheme.primary,
                   strokeCap: StrokeCap.round,
                 ),
@@ -358,9 +401,9 @@ class _NotesCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.surfaceVariant, child: Text('A', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant))),
+              CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.surfaceContainerHighest, child: Text('A', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant))),
               Transform.translate(offset: const Offset(-10, 0), child: CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.primaryContainer, child: Text('1:1', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold)))),
-              Transform.translate(offset: const Offset(-20, 0), child: CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.surfaceVariant, child: Icon(Icons.add, size: 16, color: theme.colorScheme.onSurfaceVariant))),
+              Transform.translate(offset: const Offset(-20, 0), child: CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.surfaceContainerHighest, child: Icon(Icons.add, size: 16, color: theme.colorScheme.onSurfaceVariant))),
             ],
           ),
           const SizedBox(height: 12),

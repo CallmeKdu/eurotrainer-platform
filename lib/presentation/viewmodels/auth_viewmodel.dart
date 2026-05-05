@@ -1,16 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import '../../domain/models/user_entity.dart';
+import '../../data/repositories/auth_repository.dart';
 
 enum AuthStep { login, setup2fa, verify2fa, authenticated }
 
 class AuthViewModel extends ChangeNotifier {
-  final FirebaseAuth _auth;
+  // A ViewModel desconhece completamente o Firebase. Ela depende apenas da abstração.
+  final AuthRepository _authRepository;
 
-  // O ViewModel agora recebe a instância do FirebaseAuth via injeção de dependência.
-  AuthViewModel(this._auth);
+  AuthViewModel(this._authRepository);
 
-  // Expondo o usuário logado para ser consumido por outras telas (como a Home)
-  User? get currentUser => _auth.currentUser;
+  // Expondo a entidade de Domínio em vez do "User" do Firebase
+  UserEntity? _currentUser;
+  UserEntity? get currentUser => _currentUser;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -27,10 +29,6 @@ class AuthViewModel extends ChangeNotifier {
   String _qrCodeUri = '';
   String get qrCodeUri => _qrCodeUri;
 
-  // Propriedades para o fluxo de MFA do Firebase
-  MultiFactorResolver? _resolver;
-  TotpSecret? _totpSecret;
-
   void togglePasswordVisibility() {
     _isPasswordVisible = !_isPasswordVisible;
     notifyListeners();
@@ -41,14 +39,14 @@ class AuthViewModel extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      // Tenta o login com email e senha
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      // Delega ao Repository a tentativa de login
+      final user = await _authRepository.login(email, password);
 
-      // Se o login for bem-sucedido, verificamos se o 2FA já está configurado.
-      final user = _auth.currentUser;
       if (user != null) {
-        final enrolledFactors = await user.multiFactor.getEnrolledFactors();
-        if (enrolledFactors.isEmpty) {
+        _currentUser = user;
+        final is2FaEnrolled = await _authRepository.isMfaEnrolled();
+        
+        if (!is2FaEnrolled) {
           // Se não houver fatores 2FA, iniciamos o fluxo de configuração.
           await _start2FAEnrollment();
           _currentStep = AuthStep.setup2fa;
@@ -57,16 +55,15 @@ class AuthViewModel extends ChangeNotifier {
           _currentStep = AuthStep.authenticated;
         }
       }
-    } on FirebaseAuthMultiFactorException catch (e) {
-      _resolver = e.resolver;
-      _currentStep = AuthStep.verify2fa;
-    } on FirebaseAuthException catch (e) {
-      // Lida com outros erros de login (senha errada, usuário não encontrado)
-      _errorMessage = 'E-mail ou senha inválidos.';
-      debugPrint('Erro de login do Firebase: ${e.message}');
     } catch (e) {
-      _errorMessage = 'Ocorreu um erro inesperado.';
-      debugPrint('Erro inesperado no login: $e');
+      // O Repository lida com a lógica de 2FA e deve retornar uma exceção identificável
+      // caso o login exija validação do código TOTP.
+      if (e.toString().contains('mfa_required')) {
+        _currentStep = AuthStep.verify2fa;
+      } else {
+        _errorMessage = 'E-mail ou senha inválidos.';
+        debugPrint('Erro no login: $e');
+      }
     }
 
     _setLoading(false);
@@ -75,15 +72,8 @@ class AuthViewModel extends ChangeNotifier {
   // 2. SETUP (Enrollment): Inicia o processo de configuração do 2FA para um usuário já logado
   Future<void> _start2FAEnrollment() async {
     try {
-      final user = _auth.currentUser;
-      if (user == null) throw Exception('Usuário não está logado para iniciar 2FA.');
-
-      final session = await user.multiFactor.getSession();
-      _totpSecret = await TotpMultiFactorGenerator.generateSecret(session);
-      _qrCodeUri = await _totpSecret!.generateQrCodeUrl(
-        accountName: user.email ?? 'Usuario',
-        issuer: 'EuroAcademy',
-      );
+      // O Repository cuida da complexidade de criação do segredo e gera apenas a string limpa
+      _qrCodeUri = await _authRepository.generate2FaQrCode();
     } catch (e) {
       _errorMessage = 'Erro ao gerar QR Code para 2FA.';
       debugPrint('Erro em _start2FAEnrollment: $e');
@@ -96,15 +86,7 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> confirm2FASetup(String code) async {
     _setLoading(true);
     try {
-      final user = _auth.currentUser;
-      if (user == null || _totpSecret == null) {
-        throw Exception('Estado inválido para confirmar 2FA.');
-      }
-
-      // Envia o código para o Firebase para finalizar o registro do 2FA
-      final assertion = await TotpMultiFactorGenerator.getAssertionForEnrollment(_totpSecret!, code);
-      await user.multiFactor.enroll(assertion, displayName: 'App Autenticador');
-
+      await _authRepository.confirm2FASetup(code);
       // Sucesso!
       _currentStep = AuthStep.authenticated;
     } catch (e) {
@@ -117,20 +99,8 @@ class AuthViewModel extends ChangeNotifier {
   // 4. VERIFY: Verifica o código 2FA em logins subsequentes
   Future<void> verify2FAToken(String code) async {
     _setLoading(true);
-    if (_resolver == null) {
-      _errorMessage = 'Sessão de login expirou. Tente novamente.';
-      _currentStep = AuthStep.login;
-      _setLoading(false);
-      return;
-    }
-
     try {
-      final hint = _resolver!.hints.firstWhere(
-        (info) => info.factorId == 'totp',
-        orElse: () => _resolver!.hints.first,
-      );
-      final assertion = await TotpMultiFactorGenerator.getAssertionForSignIn(hint.uid, code);
-      await _resolver!.resolveSignIn(assertion);
+      await _authRepository.verify2FAToken(code);
       _currentStep = AuthStep.authenticated;
     } catch (e) {
       _errorMessage = 'Código inválido. Tente novamente.';
@@ -151,19 +121,14 @@ class AuthViewModel extends ChangeNotifier {
   void cancel2FA() {
     _currentStep = AuthStep.login;
     _errorMessage = '';
-    _resolver = null;
-    _totpSecret = null;
-    // Se o usuário cancelar o setup, fazemos o logout para garantir um estado limpo.
-    if (_auth.currentUser != null) {
-      _auth.signOut();
-    }
+    _authRepository.logout();
     notifyListeners();
   }
 
   Future<void> logout() async {
     _setLoading(true);
     try {
-      await _auth.signOut();
+      await _authRepository.logout();
       _currentStep = AuthStep.login; // Reseta o passo para a tela de login
       _errorMessage = '';
     } catch (e) {
