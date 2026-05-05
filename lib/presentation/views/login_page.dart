@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
-import '../widgets/animated_gradient_background.dart'; // <-- Trazendo o gradiente de volta!
-import '../widgets/login_visual_panel.dart';
-import '../widgets/login_form_panel.dart';
-import '../widgets/two_factor_setup_panel.dart';
-import '../widgets/two_factor_verify_panel.dart';
-import '../../../home/presentation/home_page.dart';
+import '../components/login/animated_gradient_background.dart'; // <-- Trazendo o gradiente de volta!
+import '../components/login/login_visual_panel.dart';
+import '../components/login/login_form_panel.dart';
+import '../components/login/two_factor_setup_panel.dart';
+import '../components/login/two_factor_verify_panel.dart';
+import 'home_page.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  String _lastError = '';
 
   // Cérebro visual: escolhe qual caixinha branca vai aparecer
   Widget _buildActivePanel(BuildContext context, AuthStep step) {
@@ -27,6 +34,45 @@ class LoginPage extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Adicionamos o listener apenas após a primeira construção para evitar problemas de contexto
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthViewModel>().addListener(_onViewModelChange);
+    });
+  }
+
+  @override
+  void dispose() {
+    context.read<AuthViewModel>().removeListener(_onViewModelChange);
+    super.dispose();
+  }
+
+  // A View escuta ativamente o estado e lida com BuildContext (Navegação e SnackBars)
+  void _onViewModelChange() {
+    if (!mounted) return;
+    
+    final authViewModel = context.read<AuthViewModel>();
+
+    // Regra da View: Mostrar o SnackBar de Erro e impedir que ele repita
+    if (authViewModel.errorMessage.isNotEmpty && authViewModel.errorMessage != _lastError) {
+      _lastError = authViewModel.errorMessage;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authViewModel.errorMessage)),
+      );
+    } else if (authViewModel.errorMessage.isEmpty) {
+      _lastError = '';
+    }
+
+    // Regra da View: Cuidar da navegação em caso de sucesso
+    if (authViewModel.currentStep == AuthStep.authenticated) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       // TIRAMOS A GAMBIARRA DO FUNDO VERMELHO E PRETO!
@@ -34,16 +80,6 @@ class LoginPage extends StatelessWidget {
       body: AnimatedGradientBackground(
         child: Consumer<AuthViewModel>(
           builder: (context, authViewModel, _) {
-            // ESSA É A LÓGICA DE NAVEGAÇÃO:
-            if (authViewModel.currentStep == AuthStep.authenticated) {
-              // O WidgetsBinding garante que a navegação só ocorra após o frame atual terminar
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const HomePage()),
-                );
-              });
-            }
-
             final currentPanel = _buildActivePanel(context, authViewModel.currentStep);
 
             // Mantemos o layout perfeito para monitores (Desktop)

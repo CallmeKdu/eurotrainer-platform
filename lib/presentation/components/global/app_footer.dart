@@ -6,8 +6,6 @@ class AppFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Usamos MediaQuery no lugar de LayoutBuilder para evitar o erro de 'intrinsic dimensions'
-    // ao ser colocado dentro do SliverFillRemaining no Dashboard.
     final isMobile = MediaQuery.sizeOf(context).width < 1000;
     
     return Container(
@@ -15,13 +13,13 @@ class AppFooter extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(color: theme.colorScheme.surfaceVariant),
+          top: BorderSide(color: theme.colorScheme.surfaceContainerHighest),
         ),
       ),
       child: Builder(
         builder: (context) {
           final copyright = Text(
-            '© 2026 EuroAcademy Compliance Systems',
+            '© 2026 Euro Academy & Eurofarma - "Transformando talentos, impulsionando resultados" by EuroTrainers | FIAP',
             style: theme.textTheme.labelSmall?.copyWith(
               fontSize: 12,
               color: theme.colorScheme.onSurfaceVariant,
@@ -33,7 +31,7 @@ class AppFooter extends StatelessWidget {
             runSpacing: 12,
             alignment: isMobile ? WrapAlignment.center : WrapAlignment.end,
             children: const [
-              _FooterLink('Política de Privacidade', underline: true),
+              _FooterLink('Política de Privacidade'),
               _FooterLink('Termos de Serviço'),
               _FooterLink('Acessibilidade'),
               _FooterLink('Contate o Suporte'),
@@ -56,9 +54,7 @@ class AppFooter extends StatelessWidget {
             children: [
               copyright,
               const SizedBox(width: 16),
-              Expanded(
-                child: links,
-              ),
+              Expanded(child: links),
             ],
           );
         },
@@ -67,25 +63,32 @@ class AppFooter extends StatelessWidget {
   }
 }
 
-class _FooterLink extends StatelessWidget {
+class _FooterLink extends StatefulWidget {
   final String text;
-  final bool underline;
+  const _FooterLink(this.text);
+  @override
+  State<_FooterLink> createState() => _FooterLinkState();
+}
 
-  const _FooterLink(this.text, {this.underline = false});
+class _FooterLinkState extends State<_FooterLink> {
+  bool _isHovering = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return InkWell(
       onTap: () {},
-      child: Text(
-        text,
-        style: theme.textTheme.labelSmall?.copyWith(
+      onHover: (hovering) => setState(() => _isHovering = hovering),
+      child: AnimatedDefaultTextStyle(
+        duration: const Duration(milliseconds: 200),
+        style: (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: theme.colorScheme.onSurfaceVariant,
-          decoration: underline ? TextDecoration.underline : null,
+          color: _isHovering ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+          decoration: _isHovering ? TextDecoration.underline : null,
+          decorationColor: theme.colorScheme.primary,
         ),
+        child: Text(widget.text),
       ),
     );
   }

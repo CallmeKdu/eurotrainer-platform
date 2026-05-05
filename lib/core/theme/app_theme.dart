@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-      useMaterial3: true,
       fontFamily: 'Public Sans', // Lembre-se de adicionar essa fonte no pubspec.yaml
       
       colorScheme: const ColorScheme(
@@ -28,11 +27,9 @@ class AppTheme {
         errorContainer: Color(0xFFFFDAD6),
         onErrorContainer: Color(0xFF93000A),
         
-        background: Color(0xFFFAF9F6),
-        onBackground: Color(0xFF1A1C1A),
         surface: Color(0xFFFAF9F6),
         onSurface: Color(0xFF1A1C1A),
-        surfaceVariant: Color(0xFFE3E3DF),
+        surfaceContainerHighest: Color(0xFFE3E3DF),
         onSurfaceVariant: Color(0xFF4A4731),
         outline: Color(0xFF7B785F),
         outlineVariant: Color(0xFFCCC7AA),
