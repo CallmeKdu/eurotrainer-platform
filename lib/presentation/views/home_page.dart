@@ -41,14 +41,14 @@ class _HomePageContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Sidebar (Menu Lateral)
-          const AppSidebar(),
+          const AppSidebar(activeRoute: '/home'), // Passamos a rota ativa para destacar o menu 
           
           // Conteúdo Principal
           Expanded(
             child: Column(
               children: [
                 // Header (Topo)
-                const AppHeader(),
+                const AppHeader(title: 'Dashboard'),
                 
                 // Dashboard Content (Rolável)
                 Expanded(
