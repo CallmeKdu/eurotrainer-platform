@@ -7,25 +7,25 @@ import 'presentation/views/login_page.dart';
 import 'core/theme/app_theme.dart';
 import 'core/injection.dart' as di; 
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  await di.initInjection(); 
+  void main() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    
+    await di.initInjection(); 
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => di.sl<AuthViewModel>()),
-      ],
-      child: const MyApp(),
-    ),
-  );
-}
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => di.sl<AuthViewModel>()),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  }
 
-class MyApp extends StatelessWidget {
+  class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override

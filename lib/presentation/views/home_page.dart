@@ -14,7 +14,13 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Instancia a HomeViewModel exclusivamente para a HomePage
     return ChangeNotifierProvider<HomeViewModel>(
-      create: (_) => sl<HomeViewModel>(),
+      create: (providerContext) {
+        final homeViewModel = sl<HomeViewModel>();
+        final authViewModel = providerContext.read<AuthViewModel>();
+        // Injeta os dados do usuário explicitamente assim que a página é construída
+        homeViewModel.updateUser(authViewModel.currentUser);
+        return homeViewModel;
+      },
       child: const _HomePageContent(),
     );
   }
@@ -32,8 +38,6 @@ class _HomePageContent extends StatelessWidget {
     // Escutamos as ViewModels necessárias
     final authViewModel = context.watch<AuthViewModel>();
     final homeViewModel = context.watch<HomeViewModel>();
-    // Atualiza os dados de usuário na HomeViewModel de forma passiva
-    homeViewModel.updateUser(authViewModel.currentUser);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -41,14 +45,14 @@ class _HomePageContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Sidebar (Menu Lateral)
-          const AppSidebar(),
+          const AppSidebar(activeRoute: '/home'), // Passamos a rota ativa para destacar o menu 
           
           // Conteúdo Principal
           Expanded(
             child: Column(
               children: [
                 // Header (Topo)
-                const AppHeader(),
+                const AppHeader(title: 'Dashboard'),
                 
                 // Dashboard Content (Rolável)
                 Expanded(

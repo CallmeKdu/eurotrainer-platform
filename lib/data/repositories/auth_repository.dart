@@ -22,17 +22,15 @@ class AuthRepository {
         // 2. Busca o documento do usuário no Firestore (Pega o Perfil/Role)
         final userData = await _firestoreService.getUserData(firebaseUser.uid);
 
-        // Se não achar o documento no Firestore, podemos definir um padrão de fallback (ex: 'aluno')
-        final String roleDoBanco = userData?['role'] ?? 'aluno';
-        final String nomeDoBanco = userData?['nome'] ?? firebaseUser.displayName ?? '';
+        // Prepara o Map combinando os dados do Firestore com os fallbacks do Firebase Auth
+        final Map<String, dynamic> firestoreData = {
+          'name': userData?['name'] ?? firebaseUser.displayName ?? '',
+          'email': userData?['email'] ?? firebaseUser.email ?? '',
+          'role': userData?['role'] ?? 'aluno',
+        };
 
-        // 3. Monta a UserEntity completa e sem erros!
-        return UserEntity(
-          id: firebaseUser.uid,
-          email: firebaseUser.email ?? '',
-          nome: nomeDoBanco,
-          role: roleDoBanco, 
-        );
+        // 3. Utiliza a factory fromFirestore para instanciar a entidade corretamente!
+        return UserEntity.fromFirestore(firestoreData, firebaseUser.uid);
       }
       return null;
 
