@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    context.read<AuthViewModel>().removeListener(_onViewModelChange);
+   // context.read<AuthViewModel>().removeListener(_onViewModelChange);
     super.dispose();
   }
 

@@ -14,6 +14,7 @@ class HomeViewModel extends ChangeNotifier {
   void updateUser(UserEntity? user) {
     if (_currentUser != user) {
       _currentUser = user;
+      debugPrint('EuroAcademy Log: Usuário recebido no ViewModel: ${user?.name}');
       // O uso do addPostFrameCallback ou delay é boa prática caso seja atualizado via build.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifyListeners();
@@ -41,8 +42,8 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   String get nomeFormatado {
-    if (_currentUser == null || _currentUser!.nome.trim().isEmpty) return "";
-    final partes = _currentUser!.nome.trim().split(RegExp(r'\s+'));
+    if (_currentUser == null || _currentUser!.name.trim().isEmpty) return "";
+    final partes = _currentUser!.name.trim().split(RegExp(r'\s+'));
     if (partes.length == 1) return partes.first;
     return "${partes.first} ${partes.last}";
   }
