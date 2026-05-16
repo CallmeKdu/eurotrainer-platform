@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../data/repositories/auth_repository.dart';
 import '../presentation/viewmodels/auth_viewmodel.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
+import '../presentation/viewmodels/training_viewmodel.dart';
+import '../presentation/viewmodels/course_player_viewmodel.dart';
 import '../data/services/firebase_auth_service.dart';
 import '../data/services/firestore_user_service.dart';
 /*
@@ -32,4 +34,6 @@ Future<void> initInjection() async {
   // ViewModels (Usamos Factory pois dependendo do fluxo pode ser recriado se destruído na UI)
   sl.registerFactory<AuthViewModel>(() => AuthViewModel(sl()));
   sl.registerFactory<HomeViewModel>(() => HomeViewModel());
+  sl.registerFactory<TrainingViewModel>(() => TrainingViewModel());
+  sl.registerFactory<CoursePlayerViewModel>(() => CoursePlayerViewModel());
 }

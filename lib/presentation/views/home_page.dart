@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
-import '../components/global/app_header.dart';
-import '../components/global/app_sidebar.dart';
-import '../components/global/app_footer.dart';
 import '../../core/injection.dart';
+import '../../domain/models/training_model.dart';
+import '../viewmodels/course_player_viewmodel.dart';
+import 'courseplay_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -39,25 +39,8 @@ class _HomePageContent extends StatelessWidget {
     final authViewModel = context.watch<AuthViewModel>();
     final homeViewModel = context.watch<HomeViewModel>();
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Sidebar (Menu Lateral)
-          const AppSidebar(activeRoute: '/home'), // Passamos a rota ativa para destacar o menu 
-          
-          // Conteúdo Principal
-          Expanded(
-            child: Column(
-              children: [
-                // Header (Topo)
-                const AppHeader(title: 'Dashboard'),
-                
-                // Dashboard Content (Rolável)
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: [
+    return CustomScrollView(
+      slivers: [
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
@@ -136,24 +119,7 @@ class _HomePageContent extends StatelessWidget {
                           ),
                         ),
                       ),
-                      
-                      // SliverFillRemaining garante que o Footer fique no fim da tela
-                      const SliverFillRemaining(
-                        hasScrollBody: false,
-                        fillOverscroll: true,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: AppFooter(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -254,28 +220,28 @@ class _TrainingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return _BentoCard(
-      title: 'Treinamentos Obrigatórios',
+      title: 'Treinamento em Destaque',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  Text(
-                    'Segurança da Informação 2024',
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
-                  ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    Text('EuroAcademy: Bem-vindo!', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface, fontSize: 20)),
                     const SizedBox(height: 4),
-                    Text('Módulo 3 de 5 concluído', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                ],
+                    Text('Integração à plataforma', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  ],
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: theme.colorScheme.tertiaryContainer, borderRadius: BorderRadius.circular(16)),
-                  child: Text('1 Vencimento', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onTertiaryContainer)),
+                  decoration: BoxDecoration(color: const Color(0xFFE5EDFF), borderRadius: BorderRadius.circular(16)),
+                  child: Text('Novo', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87)),
               ),
             ],
           ),
@@ -284,12 +250,12 @@ class _TrainingCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Progresso Atual', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                Text('60%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+                Text('0%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
             ],
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
-            value: 0.6,
+            value: 0.0, // Quando conectarmos com Firebase, isso virá do ViewModel
               backgroundColor: theme.colorScheme.primaryContainer,
               color: theme.colorScheme.primary,
             minHeight: 8,
@@ -299,14 +265,34 @@ class _TrainingCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // Cria a model mockada para este card fixo e envia para o Player
+                final welcomeCourse = TrainingModel(
+                  id: 'welcome_1',
+                  title: 'EuroAcademy: Bem-vindo!',
+                  description: 'Integração à plataforma',
+                  deadline: 'Sem prazo',
+                  scormUrl: 'https://eurotrainer-platform.web.app/index.html',
+                  tagText: 'EA',
+                  tagColorHex: 0xFFE5EDFF,
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CoursePlayPage(
+                      training: welcomeCourse,
+                      viewModel: sl<CoursePlayerViewModel>(),
+                    ),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 elevation: 0,
               ),
-              child: const Text('Continuar'),
+              child: const Text('Acessar Curso'),
             ),
           ),
         ],

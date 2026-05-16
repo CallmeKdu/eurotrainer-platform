@@ -3,14 +3,17 @@ import 'package:provider/provider.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import '../../views/login_page.dart';
 import '../../views/notes_page.dart';
+import '../../views/main_layout.dart';
 
 class AppSidebar extends StatelessWidget {
   // 1. Criamos a variável que diz em qual página estamos
   final String activeRoute;
+  final void Function(String)? onNavigate;
 
   const AppSidebar({
     super.key, 
     this.activeRoute = '/home', // Por padrão, ele assume que é a Home
+    this.onNavigate,
   });
 
   @override
@@ -59,12 +62,33 @@ class AppSidebar extends StatelessWidget {
                   isActive: activeRoute == '/home', // Fica ativo se estiver na Home
                   onTap: () {
                     if (activeRoute == '/home') return; // Bloqueia o clique duplo
-                    // Volta para a base (limpa a pilha de navegação até a Home)
-                    Navigator.popUntil(context, (route) => route.isFirst);
+                    if (onNavigate != null) {
+                      onNavigate!('/home');
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/home')),
+                      );
+                    }
                   },
                 ),
                 
-                const _SidebarItem(icon: Icons.security, label: 'Treinamentos'),
+                _SidebarItem(
+                  icon: Icons.security, 
+                  label: 'Treinamentos',
+                  isActive: activeRoute == '/trainings',
+                  onTap: () {
+                    if (activeRoute == '/trainings') return;
+                    if (onNavigate != null) {
+                      onNavigate!('/trainings');
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/trainings')),
+                      );
+                    }
+                  },
+                ),
                 const _SidebarItem(icon: Icons.bar_chart, label: 'Análises'),
                 
                 // 3. NOTAS
@@ -74,10 +98,14 @@ class AppSidebar extends StatelessWidget {
                   isActive: activeRoute == '/notes', // Fica "amarelão" se estiver nas notas
                   onTap: () {
                     if (activeRoute == '/notes') return; // Bloqueia empilhar 3 vezes!
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const NotesPage()),
-                    );
+                    if (onNavigate != null) {
+                      onNavigate!('/notes');
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/notes')),
+                      );
+                    }
                   },
                 ),
                 
