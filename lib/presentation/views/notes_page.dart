@@ -1,9 +1,6 @@
 import 'package:eurotrainer_platform/presentation/components/notes/note_editor_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../components/global/app_sidebar.dart';
-import '../components/global/app_header.dart';
-import '../components/global/app_footer.dart';
 import '../components/notes/note_card.dart';
 import '../../../domain/models/note_model.dart';
 
@@ -32,33 +29,12 @@ class _NotesPageState extends State<NotesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF9F6),
-      body: Row(
-        children: [
-          const AppSidebar(activeRoute: '/notes'), // Menu Lateral separado
-          Expanded(
-            child: Column(
-              children: [
-                AppHeader(
-                  title: 'Notas', 
-                  showBackButton: true,
-                  onBack: () => Navigator.pop(context),
-                ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      _buildContent(),
-                      _buildFAB(),
-                    ],
-                  ),
-                ),
-                const AppFooter(), // Footer reutilizado
-              ],
-            ),
-          ),
-        ],
-      ),
+    // Retornamos apenas o conteúdo, o MainLayout cuidará do Menu e do Header!
+    return Stack(
+      children: [
+        _buildContent(),
+        _buildFAB(),
+      ],
     );
   }
 

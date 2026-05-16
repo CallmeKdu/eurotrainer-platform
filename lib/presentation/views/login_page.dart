@@ -6,7 +6,7 @@ import '../components/login/login_visual_panel.dart';
 import '../components/login/login_form_panel.dart';
 import '../components/login/two_factor_setup_panel.dart';
 import '../components/login/two_factor_verify_panel.dart';
-import 'home_page.dart';
+import 'main_layout.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
     // Regra da View: Cuidar da navegação em caso de sucesso
     if (authViewModel.currentStep == AuthStep.authenticated) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
+        MaterialPageRoute(builder: (_) => const MainLayout(initialRoute: '/home')),
       );
     }
   }
