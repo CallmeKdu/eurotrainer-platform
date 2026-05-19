@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Node.js (Script de validação)
+node_modules/
+package-lock.json
+validar.js
+
+# Firebase Admin/Google Cloud JSON
+*.json
+!metadata.json
+!firebase.json
+.agents/
