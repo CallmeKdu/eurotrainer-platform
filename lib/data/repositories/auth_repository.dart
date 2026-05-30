@@ -24,7 +24,7 @@ class AuthRepository {
 
         // Prepara o Map combinando os dados do Firestore com os fallbacks do Firebase Auth
         final Map<String, dynamic> firestoreData = {
-          'name': userData?['name'] ?? firebaseUser.displayName ?? '',
+          'name': userData?['nomeCompleto'] ?? userData?['name'] ?? firebaseUser.displayName ?? '',
           'email': userData?['email'] ?? firebaseUser.email ?? '',
           'role': userData?['role'] ?? 'aluno',
         };
