@@ -7,6 +7,8 @@ import 'training_page.dart';
 import 'notes_page.dart';
 import 'home_page.dart';
 import 'calendar_page.dart';
+import 'profile_page.dart';
+import '../viewmodels/profile_viewmodel.dart';
 import '../viewmodels/training_viewmodel.dart';
 
 class MainLayout extends StatefulWidget {
@@ -42,6 +44,7 @@ class _MainLayoutState extends State<MainLayout> {
       case '/trainings': return 'Treinamentos';
       case '/notes': return 'Notas Rápidas';
       case '/calendario': return 'Calendário';
+      case '/profile': return 'Meu Perfil';
       case '/home':
       default: return 'Dashboard';
     }
@@ -56,6 +59,8 @@ class _MainLayoutState extends State<MainLayout> {
         return const NotesPage();
       case '/calendario':
         return const CalendarPage();
+      case '/profile':
+        return ProfilePage(viewModel: sl<ProfileViewModel>());
       case '/home':
       default:
         return const HomePage();

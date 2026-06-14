@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import '../../views/login_page.dart';
-import '../../views/notes_page.dart';
 import '../../views/main_layout.dart';
 
 class AppSidebar extends StatelessWidget {
@@ -112,6 +111,23 @@ class AppSidebar extends StatelessWidget {
 
 
                 const _SidebarItem(icon: Icons.person, label: 'Perfil'),
+                const _SidebarItem(icon: Icons.calendar_today, label: 'Calendário'),
+                _SidebarItem(
+                  icon: Icons.person,
+                  label: 'Perfil',
+                  isActive: activeRoute == '/profile',
+                  onTap: () {
+                    if (activeRoute == '/profile') return;
+                    if (onNavigate != null) {
+                      onNavigate!('/profile');
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/profile')),
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),

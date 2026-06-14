@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../domain/models/note_model.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodels/notes_viewmodel.dart';
 
 class NoteEditorDialog extends StatefulWidget {
   final NoteModel? note;
@@ -80,6 +82,37 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
   void _handleSave() {
     final now = DateTime.now();
+    final title = _titleController.text.trim();
+    final summary = _contentController.document.toPlainText().trim();
+    
+    final notesViewModel = Provider.of<NotesViewModel>(context, listen: false);
+    
+    if (widget.note == null) {
+      final newNote = NoteModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        summary: summary,
+        date: "Hoje, ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}",
+        dateTime: now,
+        avatarType: NoteAvatarType.text,
+        avatarContent: title.isNotEmpty ? title[0].toUpperCase() : 'N',
+        iconType: NoteIconType.pin,
+      );
+      notesViewModel.addNote(newNote);
+    } else {
+      final updatedNote = NoteModel(
+        id: widget.note!.id,
+        title: title,
+        summary: summary,
+        date: "Editado hoje, ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}",
+        dateTime: now,
+        avatarType: widget.note!.avatarType,
+        avatarContent: title.isNotEmpty ? title[0].toUpperCase() : widget.note!.avatarContent,
+        iconType: widget.note!.iconType,
+      );
+      notesViewModel.updateNote(updatedNote);
+    }
+
     setState(() {
       _lastSavedTime = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
       _canSave = false;

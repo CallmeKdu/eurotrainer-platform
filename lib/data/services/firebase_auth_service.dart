@@ -16,4 +16,9 @@ class FirebaseAuthService {
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
+
+  // Função para enviar e-mail de redefinição de senha
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
 }

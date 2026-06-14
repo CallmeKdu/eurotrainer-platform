@@ -100,7 +100,7 @@ class _TrainingsViewState extends State<TrainingView> {
         border: Border.all(color: Colors.grey.shade300),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           )
@@ -146,12 +146,12 @@ class _TrainingsViewState extends State<TrainingView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Progresso Atual', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-              Text('0%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+              Text('${(widget.viewModel.getProgressValue(training.id) * 100).toInt()}%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
             ],
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
-            value: 0.0,
+            value: widget.viewModel.getProgressValue(training.id),
             backgroundColor: theme.colorScheme.primaryContainer,
             color: theme.colorScheme.primary,
             minHeight: 8,

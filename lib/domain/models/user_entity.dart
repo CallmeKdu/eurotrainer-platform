@@ -3,6 +3,8 @@ class UserEntity {
   final String name;
   final String email;
   final String role; // Ex: 'funcionário', 'gestor', 'ti'
+  final String? photoUrl;
+  final String? bio;
 
 // Construtor para criar uma instância de UserEntity
   UserEntity({
@@ -10,6 +12,8 @@ class UserEntity {
     required this.name, 
     required this.email, 
     required this.role,
+    this.photoUrl,
+    this.bio,
   });
 
   factory UserEntity.fromFirestore(Map<String, dynamic> data, String documentId) {
@@ -19,6 +23,8 @@ class UserEntity {
       name: data['nomeCompleto'] ?? data['name'] ?? '',
       email: data['email'] ?? '',
       role: data['role'] ?? '',
+      photoUrl: data['photoUrl'],
+      bio: data['bio'],
     );
   }
 }
