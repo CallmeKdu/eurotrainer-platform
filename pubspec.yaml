@@ -52,6 +52,7 @@ dependencies:
   flutter_quill: ^9.2.3
   image_picker: ^1.2.2
   firebase_storage: ^11.7.7
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
