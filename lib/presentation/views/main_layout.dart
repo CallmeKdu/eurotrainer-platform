@@ -6,6 +6,7 @@ import '../components/global/app_footer.dart';
 import 'training_page.dart';
 import 'notes_page.dart';
 import 'home_page.dart';
+import 'calendar_page.dart';
 import 'profile_page.dart';
 import '../viewmodels/profile_viewmodel.dart';
 import '../viewmodels/training_viewmodel.dart';
@@ -37,12 +38,10 @@ class _MainLayoutState extends State<MainLayout> {
 
   String _getHeaderTitle() {
     switch (_activeRoute) {
-      case '/trainings':
-        return 'Treinamentos';
-      case '/notes':
-        return 'Notas Rápidas';
-      case '/profile':
-        return 'Meu Perfil';
+      case '/trainings': return 'Treinamentos';
+      case '/notes': return 'Notas Rápidas';
+      case '/calendario': return 'Calendário';
+      case '/profile': return 'Meu Perfil';
       case '/home':
       default:
         return 'Dashboard';
@@ -56,6 +55,8 @@ class _MainLayoutState extends State<MainLayout> {
         return TrainingView(viewModel: sl<TrainingViewModel>());
       case '/notes':
         return const NotesPage();
+      case '/calendario':
+        return const CalendarPage();
       case '/profile':
         return ProfilePage(viewModel: sl<ProfileViewModel>());
       case '/home':

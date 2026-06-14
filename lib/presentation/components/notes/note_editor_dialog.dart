@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import '../../../../domain/models/note_model.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodels/notes_viewmodel.dart';
 
 class NoteEditorDialog extends StatefulWidget {
   final NoteModel? note;
@@ -16,8 +20,7 @@ class NoteEditorDialog extends StatefulWidget {
 class _NoteEditorDialogState extends State<NoteEditorDialog> {
   late quill.QuillController _contentController;
   late TextEditingController _titleController;
-
-  // 1. A SOLUÇÃO DO BUG DE DIGITAÇÃO: FocusNodes fixos
+  
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _contentFocus = FocusNode();
 
@@ -31,16 +34,16 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
     _isReadOnly = widget.initialReadOnly;
 
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-
-    // 2. A SOLUÇÃO DE NÃO CONSEGUIR CLICAR: Inserir um parágrafo em branco (\n)
-    final doc = quill.Document();
-    if (widget.note != null && widget.note!.summary.isNotEmpty) {
-      doc.insert(0, widget.note!.summary);
+    
+    quill.Document doc;
+    if (widget.note != null && widget.note!.contentDelta.isNotEmpty) {
+      try {
+        doc = quill.Document.fromJson(jsonDecode(widget.note!.contentDelta));
+      } catch (e) {
+        doc = quill.Document()..insert(0, widget.note!.summary);
+      }
     } else {
-      doc.insert(
-        0,
-        '\n',
-      ); // Garante que a primeira linha exista para receber o clique
+      doc = quill.Document()..insert(0, '\n');
     }
 
     _contentController = quill.QuillController(
@@ -48,7 +51,6 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
       selection: const TextSelection.collapsed(offset: 0),
     );
 
-    // Só reavalia o botão quando o usuário digita
     _titleController.addListener(_checkChanges);
     _contentController.addListener(_checkChanges);
   }
@@ -74,7 +76,6 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
     final isNotEmpty = currentTitle.isNotEmpty && currentContent.isNotEmpty;
 
-    // Atualiza a tela sem perder o foco
     if (_canSave != (hasChanges && isNotEmpty)) {
       setState(() {
         _canSave = hasChanges && isNotEmpty;
@@ -82,18 +83,117 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
     }
   }
 
+  Future<void> _handleSave() async {
+    final viewModel = Provider.of<NotesViewModel>(context, listen: false);
   void _handleSave() {
     final now = DateTime.now();
+    final title = _titleController.text.trim();
+    final summary = _contentController.document.toPlainText().trim();
+    
+    final notesViewModel = Provider.of<NotesViewModel>(context, listen: false);
+    
+    if (widget.note == null) {
+      final newNote = NoteModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        summary: summary,
+        date: "Hoje, ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}",
+        dateTime: now,
+        avatarType: NoteAvatarType.text,
+        avatarContent: title.isNotEmpty ? title[0].toUpperCase() : 'N',
+        iconType: NoteIconType.pin,
+      );
+      notesViewModel.addNote(newNote);
+    } else {
+      final updatedNote = NoteModel(
+        id: widget.note!.id,
+        title: title,
+        summary: summary,
+        date: "Editado hoje, ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}",
+        dateTime: now,
+        avatarType: widget.note!.avatarType,
+        avatarContent: title.isNotEmpty ? title[0].toUpperCase() : widget.note!.avatarContent,
+        iconType: widget.note!.iconType,
+      );
+      notesViewModel.updateNote(updatedNote);
+    }
+
     setState(() {
       _lastSavedTime =
           "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
       _canSave = false;
       _isReadOnly = true;
     });
+    
+    final title = _titleController.text.trim();
+    final summary = _contentController.document.toPlainText().trim();
+    final contentDelta = jsonEncode(_contentController.document.toDelta().toJson());
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Nota salva com sucesso!')));
+    try {
+      if (widget.note == null) {
+        await viewModel.createNote(title, summary, contentDelta);
+      } else {
+        await viewModel.updateNote(widget.note!.id, title, summary, contentDelta, widget.note!.createdAt);
+      }
+
+      if (!mounted) return;
+
+      final now = DateTime.now();
+      setState(() {
+        _lastSavedTime = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+        _canSave = false;
+        _isReadOnly = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nota salva com sucesso!')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao salvar nota: $e')),
+      );
+    }
+  }
+
+  Future<void> _handleDelete() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir Anotação'),
+        content: const Text('Tem certeza que deseja excluir esta anotação? Esta ação não pode ser desfeita.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && widget.note != null && mounted) {
+      final viewModel = Provider.of<NotesViewModel>(context, listen: false);
+      try {
+        await viewModel.deleteNote(widget.note!.id);
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Nota excluída com sucesso!')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao excluir nota: $e')),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -124,7 +224,12 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                 ),
                 Row(
                   children: [
-                    if (_isReadOnly)
+                    if (_isReadOnly && widget.note != null)
+                      IconButton(
+                        icon: const Icon(LucideIcons.trash, size: 20, color: Colors.red),
+                        onPressed: _handleDelete,
+                      ),
+                    if (_isReadOnly) 
                       IconButton(
                         icon: const Icon(
                           LucideIcons.pencil,
@@ -133,8 +238,7 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                         ),
                         onPressed: () {
                           setState(() => _isReadOnly = false);
-                          // Força o foco para o editor ao clicar em editar
-                          _contentFocus.requestFocus();
+                          _contentFocus.requestFocus(); 
                         },
                       ),
                     IconButton(

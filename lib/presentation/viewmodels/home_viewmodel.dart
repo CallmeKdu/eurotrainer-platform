@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/models/user_entity.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -37,15 +38,17 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   String get saudacaoTempo {
-    final hora = DateTime.now().hour;
+    final hora = DateTime.now().hour; // DateTime.now() é no timezone local do dispositivo
     if (hora >= 5 && hora < 12) return "Bom dia";
     if (hora >= 12 && hora < 18) return "Boa tarde";
     return "Boa noite";
   }
 
   String get nomeFormatado {
-    if (_currentUser == null || _currentUser!.name.trim().isEmpty) return "";
-    final partes = _currentUser!.name.trim().split(RegExp(r'\s+'));
+    final user = FirebaseAuth.instance.currentUser;
+    final name = user?.displayName;
+    if (name == null || name.trim().isEmpty) return "usuário";
+    final partes = name.trim().split(RegExp(r'\s+'));
     if (partes.length == 1) return partes.first;
     return "${partes.first} ${partes.last}";
   }

@@ -1,31 +1,40 @@
-import 'package:flutter/material.dart';
-
-enum NoteAvatarType { text, image, icon }
-
-enum NoteIconType { pin, alert }
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NoteModel {
   final String id;
   final String title;
   final String summary;
-  final String date;
-  final DateTime dateTime; // Para ordenação
-  final NoteAvatarType avatarType;
-  final String avatarContent;
-  final Color? avatarBg;
-  final Color? avatarColor;
-  final NoteIconType? iconType;
+  final String contentDelta;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   NoteModel({
     required this.id,
     required this.title,
     required this.summary,
-    required this.date,
-    required this.dateTime,
-    required this.avatarType,
-    required this.avatarContent,
-    this.avatarBg,
-    this.avatarColor,
-    this.iconType,
+    required this.contentDelta,
+    required this.createdAt,
+    required this.updatedAt,
   });
+
+  factory NoteModel.fromFirestore(Map<String, dynamic> data, String documentId) {
+    return NoteModel(
+      id: documentId,
+      title: data['title'] ?? '',
+      summary: data['summary'] ?? '',
+      contentDelta: data['contentDelta'] ?? '',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'summary': summary,
+      'contentDelta': contentDelta,
+      'createdAt': Timestamp.fromDate(createdAt),
+      'updatedAt': Timestamp.fromDate(updatedAt),
+    };
+  }
 }

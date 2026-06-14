@@ -1,10 +1,11 @@
 import 'package:eurotrainer_platform/presentation/components/notes/note_editor_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import '../components/notes/note_card.dart';
-import '../../../domain/models/note_model.dart';
+import '../viewmodels/notes_viewmodel.dart';
 
-class NotesPage extends StatefulWidget {
+class NotesPage extends StatelessWidget {
   const NotesPage({super.key});
 
   @override
@@ -12,34 +13,25 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  // Lista Mock para exemplo
-  final List<NoteModel> _notes = [
-    NoteModel(
-      id: '1',
-      title: 'Diretrizes de Compliance',
-      summary: 'Revisar a nova seção 4.2 do GDPR sobre retenção de dados...',
-      date: 'Hoje, 10:30',
-      dateTime: DateTime.now(),
-      avatarType: NoteAvatarType.text,
-      avatarContent: 'A1',
-      iconType: NoteIconType.pin,
-    ),
-    // Adicione mais mocks aqui...
-  ];
-
   @override
   Widget build(BuildContext context) {
-    // Retornamos apenas o conteúdo, o MainLayout cuidará do Menu e do Header!
-    return Stack(children: [_buildContent(), _buildFAB()]);
+    return Stack(
+      children: [
+        _buildContent(context),
+        _buildFAB(context),
+      ],
+    );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final notesViewModel = context.watch<NotesViewModel>();
+    final notes = notesViewModel.notes;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título e Botão Classificar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -61,19 +53,66 @@ class _NotesPageState extends State<NotesPage> {
             ],
           ),
           const SizedBox(height: 40),
-          // Grid de Notas
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 400,
-              mainAxisExtent: 280,
-              crossAxisSpacing: 24,
-              mainAxisSpacing: 24,
-            ),
-            itemCount: _notes.length,
-            itemBuilder: (context, index) => NoteCard(note: _notes[index]),
+
+          Consumer<NotesViewModel>(
+            builder: (context, viewModel, child) {
+              if (viewModel.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (viewModel.errorMessage.isNotEmpty && viewModel.notes.isEmpty) {
+                 return Center(child: Text(viewModel.errorMessage));
+              }
+
+              if (viewModel.notes.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: Text(
+                      'Nenhuma anotação encontrada.',
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ),
+                );
+              }
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 400,
+                  mainAxisExtent: 280,
+                  crossAxisSpacing: 24,
+                  mainAxisSpacing: 24,
+                ),
+                itemCount: viewModel.notes.length,
+                itemBuilder: (context, index) => NoteCard(note: viewModel.notes[index]),
+              );
+            },
           ),
+          // Grid de Notas
+          notes.isEmpty
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 60.0),
+                    child: Text(
+                      'Nenhuma anotação criada ainda.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+                )
+              : GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 400,
+                    mainAxisExtent: 280,
+                    crossAxisSpacing: 24,
+                    mainAxisSpacing: 24,
+                  ),
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) => NoteCard(note: notes[index]),
+                ),
         ],
       ),
     );
@@ -107,10 +146,8 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  // Importe o dialog lá no topo:
-  // import '../components/notes/note_editor_dialog.dart';
-
   Widget _buildFAB() {
+  Widget _buildFAB(BuildContext context) {
     return Positioned(
       bottom: 40,
       right: 40,
@@ -118,8 +155,9 @@ class _NotesPageState extends State<NotesPage> {
         onPressed: () {
           showDialog(
             context: context,
-            barrierDismissible:
-                false, // Força a usar o botão Cancelar para sair
+            barrierDismissible: false,
+            builder: (_) => const NoteEditorDialog(),
+            barrierDismissible: false, // Força a usar o botão Cancelar para sair
             builder: (_) => const NoteEditorDialog(), // Sem nota = Modo Criação
           );
         },
@@ -128,4 +166,5 @@ class _NotesPageState extends State<NotesPage> {
       ),
     );
   }
+}
 }

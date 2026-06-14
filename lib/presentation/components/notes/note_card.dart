@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../domain/models/note_model.dart';
 import 'note_editor_dialog.dart';
 
@@ -77,24 +76,9 @@ class NoteCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  note.date,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF4A4731),
-                  ),
+                  "${note.createdAt.day.toString().padLeft(2, '0')}/${note.createdAt.month.toString().padLeft(2, '0')} às ${note.createdAt.hour.toString().padLeft(2, '0')}:${note.createdAt.minute.toString().padLeft(2, '0')}",
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF4A4731)),
                 ),
-                if (note.iconType == NoteIconType.pin)
-                  const Icon(
-                    LucideIcons.pin,
-                    size: 18,
-                    color: Color(0xFF7B785F),
-                  ),
-                if (note.iconType == NoteIconType.alert)
-                  const Icon(
-                    LucideIcons.alertCircle,
-                    size: 18,
-                    color: Color(0xFFBA1A1A),
-                  ),
               ],
             ),
           ],
@@ -104,24 +88,23 @@ class NoteCard extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    if (note.avatarType == NoteAvatarType.image) {
-      return CircleAvatar(
-        radius: 24,
-        backgroundImage: NetworkImage(note.avatarContent),
-      );
+    String initials = "N";
+    if (note.title.isNotEmpty) {
+      initials = note.title.substring(0, 1).toUpperCase();
     }
+
     return Container(
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: note.avatarBg ?? const Color(0xFFE5EDFF),
+        color: const Color(0xFFE5EDFF),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
-          note.avatarContent,
-          style: TextStyle(
-            color: note.avatarColor ?? const Color(0xFF436CA5),
+          initials,
+          style: const TextStyle(
+            color: Color(0xFF436CA5),
             fontWeight: FontWeight.bold,
           ),
         ),
