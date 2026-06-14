@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
+import '../viewmodels/training_viewmodel.dart';
+import '../viewmodels/notes_viewmodel.dart';
 import '../../core/injection.dart';
 import '../../domain/models/training_model.dart';
 import '../viewmodels/course_player_viewmodel.dart';
 import 'courseplay_page.dart';
+import 'main_layout.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -35,90 +38,82 @@ class _HomePageContent extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    // Escutamos as ViewModels necessárias
-
     final homeViewModel = context.watch<HomeViewModel>();
 
     return CustomScrollView(
       slivers: [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Welcome Section
-                              Text(
-                                '${homeViewModel.saudacaoTempo}, ${homeViewModel.nomeFormatado}!',
-                                style: textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                homeViewModel.fraseMotivacional,
-                                style: textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              const SizedBox(height: 32),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Welcome Section
+                Text(
+                  '${homeViewModel.saudacaoTempo}, ${homeViewModel.nomeFormatado}!',
+                  style: textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  homeViewModel.fraseMotivacional,
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 32),
 
-                              // Bento Grid
-                              Column(
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Coluna Esquerda (Treinamento, Projetos, Notas)
-                                      Expanded(
-                                        flex: 2,
-                                        child: Column(
-                                          children: [
-                                            const _TrainingCard(),
-                                            const SizedBox(height: 20),
-                                            Row(
-                                              children: const [
-                                                Expanded(child: _ProjectsCard()),
-                                                SizedBox(width: 20),
-                                                Expanded(child: _NotesCard()),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 20),
-                                      // Coluna Direita (Análises)
-                                      const Expanded(
-                                        flex: 1,
-                                        child: _StatsCard(),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  // Bottom Row (Calendário e Certificados) com mesma altura
-                                  IntrinsicHeight(
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: const [
-                                        Expanded(
-                                          flex: 2,
-                                          child: _CalendarCard(),
-                                        ),
-                                        SizedBox(width: 20),
-                                        Expanded(
-                                          flex: 1,
-                                          child: _CertificatesCard(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                // Bento Grid
+                Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Coluna Esquerda (Treinamento, Projetos, Notas)
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              const _TrainingCard(),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: const [
+                                  Expanded(child: _TrainingsCard()),
+                                  SizedBox(width: 20),
+                                  Expanded(child: _NotesCard()),
                                 ],
                               ),
                             ],
                           ),
                         ),
-                      ),
+                        const SizedBox(width: 20),
+                        // Coluna Direita (Análises)
+                        const Expanded(
+                          flex: 1,
+                          child: _StatsCard(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Bottom Row (Calendário e Certificados) com mesma altura
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        _CalendarCard(),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: _CertificatesCard(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -219,6 +214,10 @@ class _TrainingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final trainingViewModel = context.watch<TrainingViewModel>();
+    final progressVal = trainingViewModel.getProgressValue('welcome_1');
+    final progressPct = (progressVal * 100).toInt();
+
     return _BentoCard(
       title: 'Treinamento em Destaque',
       child: Column(
@@ -250,12 +249,12 @@ class _TrainingCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Progresso Atual', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                Text('0%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+                Text('$progressPct%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
             ],
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
-            value: 0.0, // Quando conectarmos com Firebase, isso virá do ViewModel
+            value: progressVal,
               backgroundColor: theme.colorScheme.primaryContainer,
               color: theme.colorScheme.primary,
             minHeight: 8,
@@ -266,7 +265,6 @@ class _TrainingCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: ElevatedButton(
               onPressed: () {
-                // Cria a model mockada para este card fixo e envia para o Player
                 final welcomeCourse = TrainingModel(
                   id: 'welcome_1',
                   title: 'EuroAcademy: Bem-vindo!',
@@ -358,20 +356,22 @@ class _StatsCard extends StatelessWidget {
   }
 }
 
-class _ProjectsCard extends StatelessWidget {
-  const _ProjectsCard();
+class _TrainingsCard extends StatelessWidget {
+  const _TrainingsCard();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final trainingViewModel = context.watch<TrainingViewModel>();
+    
     return _BentoCard(
-      title: 'Projetos',
+      title: 'Treinamentos',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('12', style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+          Text('${trainingViewModel.trainings.length}', style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
           const SizedBox(height: 4),
-          Text('3 atualizações hoje', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          Text('${trainingViewModel.uncompletedCount} ainda esperando por você', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         ],
       ),
     );
@@ -384,20 +384,47 @@ class _NotesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final notesViewModel = context.watch<NotesViewModel>();
+
     return _BentoCard(
-      title: 'Notas Rápidas',
+      title: 'Anotações',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.surfaceContainerHighest, child: Text('A', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant))),
-              Transform.translate(offset: const Offset(-10, 0), child: CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.primaryContainer, child: Text('1:1', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold)))),
-              Transform.translate(offset: const Offset(-20, 0), child: CircleAvatar(radius: 16, backgroundColor: theme.colorScheme.surfaceContainerHighest, child: Icon(Icons.add, size: 16, color: theme.colorScheme.onSurfaceVariant))),
-            ],
+          Text(
+            '${notesViewModel.notesCount}',
+            style: theme.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            notesViewModel.notesCount == 1 ? 'anotação salva' : 'anotações salvas',
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
-          Text('Prep 1:1 com Gerente', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.primary)),
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainLayout(initialRoute: '/notes'),
+                  ),
+                );
+              },
+              child: Text(
+                'Ver todas',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -409,33 +436,65 @@ class _CalendarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _BentoCard(
-      title: 'Calendário',
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          _CalendarEventItem(label: 'Workshop de Segurança'),
-          _CalendarEventItem(label: 'Treinamento de Liderança'),
-          _CalendarEventItem(label: 'Webinar de Compliance'),
-        ],
-      ),
-    );
-  }
-}
-
-class _CalendarEventItem extends StatelessWidget {
-  final String label;
-  const _CalendarEventItem({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: theme.colorScheme.primary, shape: BoxShape.circle)),
-        const SizedBox(width: 8),
-        Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-      ],
+    final trainingViewModel = context.watch<TrainingViewModel>();
+    
+    // Filtra apenas os próximos treinamentos não concluídos
+    final upcoming = trainingViewModel.trainings
+        .where((t) => !trainingViewModel.isCompleted(t.id))
+        .toList();
+        
+    final displayList = upcoming.take(3).toList();
+
+    return SizedBox(
+      width: 520,
+      height: 200,
+      child: _BentoCard(
+        title: 'Calendário',
+        child: SizedBox(
+          height: 120, // Altura interna estritamente fixa
+          child: displayList.isEmpty
+              ? const Center(
+                  child: Text(
+                    'não há treinamentos proximos agendados',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                )
+              : ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: displayList.length,
+                  itemBuilder: (context, index) {
+                    final training = displayList[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              training.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ),
     );
   }
 }
