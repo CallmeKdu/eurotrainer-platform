@@ -20,13 +20,15 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
     final theme = Theme.of(context);
     final authViewModel = context.watch<AuthViewModel>();
     final user = authViewModel.currentUser;
-    
+
     return Container(
       height: preferredSize.height,
       decoration: BoxDecoration(
         color: const Color(0xFFFAF9F6),
         border: Border(
-          bottom: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          bottom: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+          ),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -34,7 +36,10 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
         children: [
           if (showBackButton)
             IconButton(
-              icon: const Icon(LucideIcons.chevronLeft, color: Color(0xFF1A1C1A)),
+              icon: const Icon(
+                LucideIcons.chevronLeft,
+                color: Color(0xFF1A1C1A),
+              ),
               onPressed: onBack ?? () => Navigator.pop(context),
             ),
           Text(
@@ -54,12 +59,15 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
           CircleAvatar(
             radius: 16,
             backgroundColor: const Color(0xFFEEEEEB),
-            backgroundImage: user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+            backgroundImage:
+                user?.photoUrl != null && user!.photoUrl!.isNotEmpty
                 ? NetworkImage(user.photoUrl!)
                 : null,
             child: user?.photoUrl == null || user!.photoUrl!.isEmpty
                 ? Text(
-                    user?.name != null && user!.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                    user?.name != null && user!.name.isNotEmpty
+                        ? user.name[0].toUpperCase()
+                        : '?',
                     style: TextStyle(
                       fontSize: 14,
                       color: theme.colorScheme.onSurfaceVariant,

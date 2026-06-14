@@ -5,10 +5,12 @@ class AnimatedGradientBackground extends StatefulWidget {
   const AnimatedGradientBackground({super.key, required this.child});
 
   @override
-  State<AnimatedGradientBackground> createState() => _AnimatedGradientBackgroundState();
+  State<AnimatedGradientBackground> createState() =>
+      _AnimatedGradientBackgroundState();
 }
 
-class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground> with SingleTickerProviderStateMixin {
+class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Alignment> _topAlignmentAnimation;
   late Animation<Alignment> _bottomAlignmentAnimation;
@@ -16,20 +18,71 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 10))..repeat(reverse: true);
-    
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    )..repeat(reverse: true);
+
     _topAlignmentAnimation = TweenSequence<Alignment>([
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.topLeft, end: Alignment.topRight), weight: 1),
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.topRight, end: Alignment.bottomRight), weight: 1),
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.bottomRight, end: Alignment.bottomLeft), weight: 1),
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.bottomLeft, end: Alignment.topLeft), weight: 1),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.topLeft,
+          end: Alignment.topRight,
+        ),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.topRight,
+          end: Alignment.bottomRight,
+        ),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.bottomRight,
+          end: Alignment.bottomLeft,
+        ),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topLeft,
+        ),
+        weight: 1,
+      ),
     ]).animate(_controller);
 
     _bottomAlignmentAnimation = TweenSequence<Alignment>([
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.bottomRight, end: Alignment.bottomLeft), weight: 1),
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.bottomLeft, end: Alignment.topLeft), weight: 1),
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.topLeft, end: Alignment.topRight), weight: 1),
-      TweenSequenceItem(tween: Tween<Alignment>(begin: Alignment.topRight, end: Alignment.bottomRight), weight: 1),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.bottomRight,
+          end: Alignment.bottomLeft,
+        ),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topLeft,
+        ),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.topLeft,
+          end: Alignment.topRight,
+        ),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<Alignment>(
+          begin: Alignment.topRight,
+          end: Alignment.bottomRight,
+        ),
+        weight: 1,
+      ),
     ]).animate(_controller);
   }
 
@@ -50,7 +103,9 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
               colors: const [
                 Color(0xFFFFFFFF), // Branco
                 Color(0xFFE1EDFE), // Azul claro solicitado (#e1edfe)
-                Color(0xFFCADAFA), // Um tom sutilmente mais escuro para dar o efeito de movimento
+                Color(
+                  0xFFCADAFA,
+                ), // Um tom sutilmente mais escuro para dar o efeito de movimento
               ],
               begin: _topAlignmentAnimation.value,
               end: _bottomAlignmentAnimation.value,

@@ -30,12 +30,7 @@ class _NotesPageState extends State<NotesPage> {
   @override
   Widget build(BuildContext context) {
     // Retornamos apenas o conteúdo, o MainLayout cuidará do Menu e do Header!
-    return Stack(
-      children: [
-        _buildContent(),
-        _buildFAB(),
-      ],
-    );
+    return Stack(children: [_buildContent(), _buildFAB()]);
   }
 
   Widget _buildContent() {
@@ -113,23 +108,24 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   // Importe o dialog lá no topo:
-// import '../components/notes/note_editor_dialog.dart';
+  // import '../components/notes/note_editor_dialog.dart';
 
-Widget _buildFAB() {
-  return Positioned(
-    bottom: 40,
-    right: 40,
-    child: FloatingActionButton.large(
-      onPressed: () {
-        showDialog(
-          context: context,
-          barrierDismissible: false, // Força a usar o botão Cancelar para sair
-          builder: (_) => const NoteEditorDialog(), // Sem nota = Modo Criação
-        );
-      },
-      backgroundColor: const Color(0xFFFFF209),
-      child: const Icon(LucideIcons.plus, size: 32, color: Colors.black),
-    ),
-  );
-}
+  Widget _buildFAB() {
+    return Positioned(
+      bottom: 40,
+      right: 40,
+      child: FloatingActionButton.large(
+        onPressed: () {
+          showDialog(
+            context: context,
+            barrierDismissible:
+                false, // Força a usar o botão Cancelar para sair
+            builder: (_) => const NoteEditorDialog(), // Sem nota = Modo Criação
+          );
+        },
+        backgroundColor: const Color(0xFFFFF209),
+        child: const Icon(LucideIcons.plus, size: 32, color: Colors.black),
+      ),
+    );
+  }
 }

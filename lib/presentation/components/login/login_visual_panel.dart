@@ -13,7 +13,7 @@ class LoginVisualPanel extends StatelessWidget {
           bottom: -100,
           child: Opacity(
             opacity: 0.5,
-            child: Image.asset('assets/images/vetor.png', width: 600), 
+            child: Image.asset('assets/images/vetor.png', width: 600),
           ),
         ),
         Column(

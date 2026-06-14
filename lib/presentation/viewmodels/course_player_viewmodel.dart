@@ -12,9 +12,13 @@ class CoursePlayerViewModel extends ChangeNotifier {
   }
 
   // Função chamada via JS Interop quando o curso SCORM salva progresso
-  Future<void> saveProgress(String courseId, String status, String score) async {
+  Future<void> saveProgress(
+    String courseId,
+    String status,
+    double score,
+  ) async {
     debugPrint('SCORM Trigger: Status -> $status | Score -> $score');
-    
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -25,15 +29,20 @@ class CoursePlayerViewModel extends ChangeNotifier {
             .collection('cursos_progresso')
             .doc(courseId)
             .set({
-          'status': status,
-          'score': score,
-          'lastUpdate': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-        
+              'status': status,
+              'score': score.toString(),
+              'lastUpdate': FieldValue.serverTimestamp(),
+            }, SetOptions(merge: true));
+
         debugPrint('Progresso sincronizado com o Firebase!');
       }
     } catch (e) {
       debugPrint('Erro ao salvar progresso do curso: $e');
     }
+  }
+
+  Future<void> submitEvaluation(double rating) async {
+    debugPrint('Evaluation received: $rating');
+    // To be implemented: actual submit logic
   }
 }

@@ -11,7 +11,11 @@ class ProfileViewModel extends ChangeNotifier {
 
   final ImagePicker _picker = ImagePicker();
 
-  ProfileViewModel(this._storageService, this._firestoreService, this._authRepository);
+  ProfileViewModel(
+    this._storageService,
+    this._firestoreService,
+    this._authRepository,
+  );
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -49,9 +53,16 @@ class ProfileViewModel extends ChangeNotifier {
       final Uint8List bytes = await image.readAsBytes();
       final String extension = image.name.split('.').last.toLowerCase();
 
-      final String validExtension = ['jpg', 'jpeg', 'png', 'webp'].contains(extension) ? extension : 'jpg';
+      final String validExtension =
+          ['jpg', 'jpeg', 'png', 'webp'].contains(extension)
+          ? extension
+          : 'jpg';
 
-      final downloadUrl = await _storageService.uploadProfilePicture(uid, bytes, validExtension);
+      final downloadUrl = await _storageService.uploadProfilePicture(
+        uid,
+        bytes,
+        validExtension,
+      );
 
       await _firestoreService.updateUser(uid, {'photoUrl': downloadUrl});
 
@@ -67,10 +78,7 @@ class ProfileViewModel extends ChangeNotifier {
   Future<void> updateProfileData(String uid, String role, String bio) async {
     _setLoading(true);
     try {
-      await _firestoreService.updateUser(uid, {
-        'role': role,
-        'bio': bio,
-      });
+      await _firestoreService.updateUser(uid, {'role': role, 'bio': bio});
       _successMessage = 'Perfil atualizado com sucesso!';
     } catch (e) {
       _errorMessage = 'Erro ao atualizar perfil.';

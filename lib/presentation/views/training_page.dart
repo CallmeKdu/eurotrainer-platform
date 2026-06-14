@@ -46,7 +46,10 @@ class _TrainingsViewState extends State<TrainingView> {
                       children: const [
                         Text(
                           'Treinamentos Obrigatórios',
-                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 8),
                         Text(
@@ -65,7 +68,7 @@ class _TrainingsViewState extends State<TrainingView> {
                       foregroundColor: Colors.black,
                       elevation: 0,
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
@@ -103,7 +106,7 @@ class _TrainingsViewState extends State<TrainingView> {
             color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       padding: const EdgeInsets.all(24),
@@ -119,14 +122,20 @@ class _TrainingsViewState extends State<TrainingView> {
                   children: [
                     Text(
                       training.title,
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface, fontSize: 18),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                        fontSize: 18,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       training.description,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -135,9 +144,21 @@ class _TrainingsViewState extends State<TrainingView> {
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: Color(training.tagColorHex), borderRadius: BorderRadius.circular(16)),
-                child: Text(training.tagText, style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Color(training.tagColorHex),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  training.tagText,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
             ],
           ),
@@ -145,8 +166,19 @@ class _TrainingsViewState extends State<TrainingView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Progresso Atual', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-              Text('0%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+              Text(
+                'Progresso Atual',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                '0%',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -163,7 +195,11 @@ class _TrainingsViewState extends State<TrainingView> {
             children: [
               Text(
                 'Prazo: ${training.deadline}',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54,
+                ),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -179,7 +215,11 @@ class _TrainingsViewState extends State<TrainingView> {
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Este curso ainda não possui link SCORM.')),
+                      const SnackBar(
+                        content: Text(
+                          'Este curso ainda não possui link SCORM.',
+                        ),
+                      ),
                     );
                   }
                 },
@@ -187,9 +227,14 @@ class _TrainingsViewState extends State<TrainingView> {
                   backgroundColor: const Color(0xFFFFF209), // Amarelo primary
                   foregroundColor: const Color(0xFF736D00), // Texto escuro
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text('Acessar', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Acessar',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),

@@ -7,7 +7,7 @@ class AppFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isMobile = MediaQuery.sizeOf(context).width < 1000;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
       decoration: BoxDecoration(
@@ -41,11 +41,7 @@ class AppFooter extends StatelessWidget {
           if (isMobile) {
             return Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                links,
-                const SizedBox(height: 16),
-                copyright,
-              ],
+              children: [links, const SizedBox(height: 16), copyright],
             );
           }
 
@@ -84,7 +80,9 @@ class _FooterLinkState extends State<_FooterLink> {
         style: (theme.textTheme.labelSmall ?? const TextStyle()).copyWith(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: _isHovering ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+          color: _isHovering
+              ? theme.colorScheme.primary
+              : theme.colorScheme.onSurfaceVariant,
           decoration: _isHovering ? TextDecoration.underline : null,
           decorationColor: theme.colorScheme.primary,
         ),

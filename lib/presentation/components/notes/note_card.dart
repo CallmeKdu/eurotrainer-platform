@@ -16,7 +16,8 @@ class NoteCard extends StatelessWidget {
           context: context,
           builder: (_) => NoteEditorDialog(
             note: note, // Passa a nota atual
-            initialReadOnly: true, // Bloqueia tudo (some barra de ferramentas, botões e não deixa digitar)
+            initialReadOnly:
+                true, // Bloqueia tudo (some barra de ferramentas, botões e não deixa digitar)
           ),
         );
       },
@@ -77,12 +78,23 @@ class NoteCard extends StatelessWidget {
               children: [
                 Text(
                   note.date,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF4A4731)),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF4A4731),
+                  ),
                 ),
                 if (note.iconType == NoteIconType.pin)
-                  const Icon(LucideIcons.pin, size: 18, color: Color(0xFF7B785F)),
+                  const Icon(
+                    LucideIcons.pin,
+                    size: 18,
+                    color: Color(0xFF7B785F),
+                  ),
                 if (note.iconType == NoteIconType.alert)
-                  const Icon(LucideIcons.alertCircle, size: 18, color: Color(0xFFBA1A1A)),
+                  const Icon(
+                    LucideIcons.alertCircle,
+                    size: 18,
+                    color: Color(0xFFBA1A1A),
+                  ),
               ],
             ),
           ],

@@ -14,7 +14,9 @@ class HomeViewModel extends ChangeNotifier {
   void updateUser(UserEntity? user) {
     if (_currentUser != user) {
       _currentUser = user;
-      debugPrint('EuroAcademy Log: Usuário recebido no ViewModel: ${user?.name}');
+      debugPrint(
+        'EuroAcademy Log: Usuário recebido no ViewModel: ${user?.name}',
+      );
       // O uso do addPostFrameCallback ou delay é boa prática caso seja atualizado via build.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifyListeners();

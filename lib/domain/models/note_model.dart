@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum NoteAvatarType { text, image, icon }
+
 enum NoteIconType { pin, alert }
 
 class NoteModel {

@@ -16,11 +16,11 @@ class NoteEditorDialog extends StatefulWidget {
 class _NoteEditorDialogState extends State<NoteEditorDialog> {
   late quill.QuillController _contentController;
   late TextEditingController _titleController;
-  
+
   // 1. A SOLUÇÃO DO BUG DE DIGITAÇÃO: FocusNodes fixos
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _contentFocus = FocusNode();
-  
+
   late bool _isReadOnly;
   String? _lastSavedTime;
   bool _canSave = false;
@@ -29,15 +29,18 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
   void initState() {
     super.initState();
     _isReadOnly = widget.initialReadOnly;
-    
+
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-    
+
     // 2. A SOLUÇÃO DE NÃO CONSEGUIR CLICAR: Inserir um parágrafo em branco (\n)
     final doc = quill.Document();
     if (widget.note != null && widget.note!.summary.isNotEmpty) {
       doc.insert(0, widget.note!.summary);
     } else {
-      doc.insert(0, '\n'); // Garante que a primeira linha exista para receber o clique
+      doc.insert(
+        0,
+        '\n',
+      ); // Garante que a primeira linha exista para receber o clique
     }
 
     _contentController = quill.QuillController(
@@ -61,13 +64,14 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
   void _checkChanges() {
     if (_isReadOnly) return;
-    
+
     final currentTitle = _titleController.text.trim();
     final currentContent = _contentController.document.toPlainText().trim();
-    
-    final hasChanges = currentTitle != (widget.note?.title.trim() ?? '') || 
-                       currentContent != (widget.note?.summary.trim() ?? '');
-    
+
+    final hasChanges =
+        currentTitle != (widget.note?.title.trim() ?? '') ||
+        currentContent != (widget.note?.summary.trim() ?? '');
+
     final isNotEmpty = currentTitle.isNotEmpty && currentContent.isNotEmpty;
 
     // Atualiza a tela sem perder o foco
@@ -81,14 +85,15 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
   void _handleSave() {
     final now = DateTime.now();
     setState(() {
-      _lastSavedTime = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+      _lastSavedTime =
+          "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
       _canSave = false;
       _isReadOnly = true;
     });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Nota salva com sucesso!')),
-    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Nota salva com sucesso!')));
   }
 
   @override
@@ -108,18 +113,28 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _isReadOnly ? "Visualizando" : (widget.note == null ? "Nova Nota" : "Editando"),
-                  style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold),
+                  _isReadOnly
+                      ? "Visualizando"
+                      : (widget.note == null ? "Nova Nota" : "Editando"),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Row(
                   children: [
-                    if (_isReadOnly) 
+                    if (_isReadOnly)
                       IconButton(
-                        icon: const Icon(LucideIcons.pencil, size: 20, color: Color(0xFF285EA5)),
+                        icon: const Icon(
+                          LucideIcons.pencil,
+                          size: 20,
+                          color: Color(0xFF285EA5),
+                        ),
                         onPressed: () {
                           setState(() => _isReadOnly = false);
                           // Força o foco para o editor ao clicar em editar
-                          _contentFocus.requestFocus(); 
+                          _contentFocus.requestFocus();
                         },
                       ),
                     IconButton(
@@ -136,22 +151,31 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: _isReadOnly ? Colors.transparent : const Color(0xFFF8FAFC),
-                border: Border.all(color: _isReadOnly ? Colors.transparent : const Color(0xFFE2E8F0)),
+                color: _isReadOnly
+                    ? Colors.transparent
+                    : const Color(0xFFF8FAFC),
+                border: Border.all(
+                  color: _isReadOnly
+                      ? Colors.transparent
+                      : const Color(0xFFE2E8F0),
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextField(
                 controller: _titleController,
                 focusNode: _titleFocus,
                 readOnly: _isReadOnly,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
                 decoration: const InputDecoration(
                   hintText: "Dê um título para sua nota...",
                   border: InputBorder.none,
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
 
             // Toolbar do Quill
@@ -179,8 +203,14 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: _isReadOnly ? Colors.transparent : const Color(0xFFF8FAFC),
-                    border: Border.all(color: _isReadOnly ? Colors.transparent : const Color(0xFFE2E8F0)),
+                    color: _isReadOnly
+                        ? Colors.transparent
+                        : const Color(0xFFF8FAFC),
+                    border: Border.all(
+                      color: _isReadOnly
+                          ? Colors.transparent
+                          : const Color(0xFFE2E8F0),
+                    ),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: quill.QuillEditor.basic(
@@ -188,7 +218,8 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                     configurations: quill.QuillEditorConfigurations(
                       controller: _contentController,
                       readOnly: _isReadOnly,
-                      placeholder: "Comece a escrever os detalhes da sua nota aqui...",
+                      placeholder:
+                          "Comece a escrever os detalhes da sua nota aqui...",
                       expands: true, // Ocupa todo o container visual
                     ),
                   ),
@@ -214,10 +245,18 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                       foregroundColor: Colors.black,
                       disabledBackgroundColor: Colors.grey[300],
                       disabledForegroundColor: Colors.grey[500],
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                    child: const Text("Salvar Nota", style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      "Salvar Nota",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
               ],
             ),

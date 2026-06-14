@@ -1,9 +1,11 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:js' as js;
-import 'dart:ui_web' as ui_web;
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+
+import 'dart:html' if (dart.library.html) 'dart:html' as html;
+import 'dart:js' if (dart.library.html) 'dart:js' as js;
+import 'dart:ui_web' if (dart.library.html) 'dart:ui_web' as ui_web;
+
 import '../../domain/models/training_model.dart';
 import '../viewmodels/course_player_viewmodel.dart';
 
@@ -27,84 +29,133 @@ class _CoursePlayPageState extends State<CoursePlayPage> {
   @override
   void initState() {
     super.initState();
-    _iframeId = 'scorm-iframe-${widget.training.id}';
+    _iframeId = 'iframe_${widget.training.id}';
 
-    // 1. Registra a função do Dart no objeto window do JavaScript
-    // ignore: undefined_prefixed_name, undefined_function
-    js.context['onScormCommit'] = js.allowInterop((dynamic status, dynamic score) {
-      widget.viewModel.saveProgress(widget.training.id, status?.toString() ?? 'completed', score?.toString() ?? '100');
-    });
-
-    // 2. Constrói o visualizador web (IFrame)
-    ui_web.platformViewRegistry.registerViewFactory(_iframeId, (int viewId) {
-      final iframe = html.IFrameElement()
-        ..src = widget.training.scormUrl
-        ..style.border = 'none'
-        ..style.width = '100%'
-        ..style.height = '100%'
-        ..allowFullscreen = true;
-
-      iframe.onLoad.listen((_) {
-        widget.viewModel.setLoaded();
+    // Configura a comunicação bidirecional com o SCORM
+    if (kIsWeb) {
+      // Use standard dart:html import logic for flutter web apps
+      // ignore: undefined_prefixed_name
+      js.context['onScormCommit'] = js.allowInterop((
+        dynamic status,
+        dynamic score,
+      ) {
+        debugPrint(
+          'Flutter Web: SCORM Commit recebido - Status: $status, Score: $score',
+        );
+        widget.viewModel.saveProgress(
+          widget.training.id,
+          status.toString(),
+          double.tryParse(score.toString()) ?? 0.0,
+        );
       });
 
-      return iframe;
-    });
+      // Registra a IFrameElement no Flutter Web
+      // ignore: undefined_prefixed_name
+      ui_web.platformViewRegistry.registerViewFactory(_iframeId, (int viewId) {
+        // ignore: undefined_class
+        final iframe = html.IFrameElement()
+          ..src = widget.training.scormUrl
+          ..style.border = 'none'
+          ..style.width = '100%'
+          ..style.height = '100%'
+          ..allowFullscreen = true;
+        return iframe;
+      });
+    }
   }
 
   @override
   void dispose() {
-    // Limpa a função global para evitar vazamento de memória ao sair da tela
-    js.context['onScormCommit'] = null;
+    // Limpa a função global para evitar memory leaks
+    if (kIsWeb) {
+      // ignore: undefined_prefixed_name
+      js.context['onScormCommit'] = null;
+    }
     super.dispose();
+  }
+
+  void _showEvaluationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        double currentRating = 5.0;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Avaliar Curso'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Como você avalia este treinamento?'),
+                  const SizedBox(height: 16),
+                  Slider(
+                    value: currentRating,
+                    min: 1,
+                    max: 5,
+                    divisions: 4,
+                    label: currentRating.round().toString(),
+                    onChanged: (value) {
+                      setState(() {
+                        currentRating = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    widget.viewModel.submitEvaluation(currentRating);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Avaliação enviada com sucesso!'),
+                      ),
+                    );
+                  },
+                  child: const Text('Enviar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF9F6),
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAF9F6),
-        elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF1A1C1A)),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(
           widget.training.title,
-          style: const TextStyle(color: Color(0xFF1A1C1A), fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(fontSize: 16),
         ),
-        centerTitle: true,
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
         actions: [
-          // Botão manual de conclusão para cursos no formato WEB
-          TextButton.icon(
-            onPressed: () async {
-              await widget.viewModel.saveProgress(widget.training.id, 'completed', '100');
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Treinamento marcado como concluído!'), backgroundColor: Colors.green),
-              );
-              Navigator.pop(context); // <-- Fecha a tela automaticamente!
-            },
-            icon: const Icon(Icons.check_circle, color: Color(0xFF02378F)),
-            label: const Text('Concluir', style: TextStyle(color: Color(0xFF02378F), fontWeight: FontWeight.bold)),
+          IconButton(
+            icon: const Icon(LucideIcons.star),
+            tooltip: 'Avaliar',
+            onPressed: _showEvaluationDialog,
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          HtmlElementView(viewType: _iframeId),
-          AnimatedBuilder(
-            animation: widget.viewModel,
-            builder: (context, _) {
-              if (widget.viewModel.isLoading) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF02378F)));
-              }
-              return const SizedBox.shrink(); // Some com o carregamento quando finalizar!
-            },
-          ),
-        ],
-      ),
+      body: kIsWeb
+          ? HtmlElementView(viewType: _iframeId)
+          : const Center(
+              child: Text(
+                'O reprodutor de cursos interativos só está disponível na versão Web.',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
     );
   }
 }
