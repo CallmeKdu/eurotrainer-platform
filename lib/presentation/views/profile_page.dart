@@ -67,7 +67,8 @@ class _ProfilePageState extends State<ProfilePage> {
     final user = authViewModel.currentUser;
 
     if (user == null) {
-      return const Center(child: Text('Nenhum usuário logado.'));
+      // Show loading while checking auth state or fallback if truly null
+      return const Center(child: CircularProgressIndicator());
     }
 
     return SingleChildScrollView(

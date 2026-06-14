@@ -10,7 +10,9 @@ class AuthViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
   StreamSubscription<UserEntity?>? _userSubscription;
 
-  AuthViewModel(this._authRepository);
+  AuthViewModel(this._authRepository) {
+    _listenToUser();
+  }
 
   // Expondo a entidade de Domínio em vez do "User" do Firebase
   UserEntity? _currentUser;

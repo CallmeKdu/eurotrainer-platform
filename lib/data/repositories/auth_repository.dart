@@ -49,20 +49,20 @@ class AuthRepository {
   }
 
   Stream<UserEntity?> get currentUserStream {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return Stream.value(null);
-
-    return _firestoreService.getUserStream(user.uid).map((snapshot) {
-      if (!snapshot.exists || snapshot.data() == null) return null;
-      final data = snapshot.data()!;
-      final firestoreData = {
-          'name': data['nomeCompleto'] ?? data['name'] ?? user.displayName ?? '',
-          'email': data['email'] ?? user.email ?? '',
-          'role': data['role'] ?? 'aluno',
-          'photoUrl': data['photoUrl'],
-          'bio': data['bio'],
-      };
-      return UserEntity.fromFirestore(firestoreData, user.uid);
+    return FirebaseAuth.instance.authStateChanges().asyncExpand((user) {
+      if (user == null) return Stream.value(null);
+      return _firestoreService.getUserStream(user.uid).map((snapshot) {
+        if (!snapshot.exists || snapshot.data() == null) return null;
+        final data = snapshot.data()!;
+        final firestoreData = {
+            'name': data['nomeCompleto'] ?? data['name'] ?? user.displayName ?? '',
+            'email': data['email'] ?? user.email ?? '',
+            'role': data['role'] ?? 'aluno',
+            'photoUrl': data['photoUrl'],
+            'bio': data['bio'],
+        };
+        return UserEntity.fromFirestore(firestoreData, user.uid);
+      });
     });
   }
 
