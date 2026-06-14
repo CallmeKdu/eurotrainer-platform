@@ -108,6 +108,9 @@ class AppSidebar extends StatelessWidget {
                   },
                 ),
                 
+
+
+                const _SidebarItem(icon: Icons.person, label: 'Perfil'),
                 const _SidebarItem(icon: Icons.calendar_today, label: 'Calendário'),
                 _SidebarItem(
                   icon: Icons.person,

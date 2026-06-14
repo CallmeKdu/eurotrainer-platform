@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/home_viewmodel.dart';
+import '../viewmodels/calendar_viewmodel.dart';
 import '../viewmodels/training_viewmodel.dart';
 import '../viewmodels/notes_viewmodel.dart';
 import '../../core/injection.dart';
@@ -13,8 +14,27 @@ import 'main_layout.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  @override
+    @override
   Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProxyProvider<AuthViewModel, HomeViewModel>(
+          create: (_) => sl<HomeViewModel>(),
+          update: (_, authViewModel, homeViewModel) {
+            if (homeViewModel == null) homeViewModel = sl<HomeViewModel>();
+            homeViewModel.updateUser(authViewModel.currentUser);
+            return homeViewModel;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthViewModel, CalendarViewModel>(
+          create: (_) => sl<CalendarViewModel>(),
+          update: (_, authViewModel, calendarViewModel) {
+            if (calendarViewModel == null) calendarViewModel = sl<CalendarViewModel>();
+            calendarViewModel.updateUser(authViewModel.currentUser?.id);
+            return calendarViewModel;
+          },
+        ),
+      ],
     // Instancia a HomeViewModel exclusivamente para a HomePage
     // Usamos ProxyProvider para garantir que a HomeViewModel sempre receba o usuário atualizado
     return ChangeNotifierProxyProvider<AuthViewModel, HomeViewModel>(
@@ -27,6 +47,7 @@ class HomePage extends StatelessWidget {
       child: const _HomePageContent(),
     );
   }
+
 }
 
 class _HomePageContent extends StatelessWidget {
@@ -433,6 +454,47 @@ class _NotesCard extends StatelessWidget {
 
 class _CalendarCard extends StatelessWidget {
   const _CalendarCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _BentoCard(
+      title: 'Calendário',
+      child: Consumer<CalendarViewModel>(
+        builder: (context, viewModel, child) {
+          if (viewModel.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final upcoming = viewModel.upcomingHomeCourses;
+
+          if (upcoming.isEmpty) {
+            return const Center(
+              child: Text(
+                'não há treinamentos proximos agendados',
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: upcoming.map((course) => Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: _CalendarEventItem(label: course.title),
+            )).toList(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+
+class _CalendarEventItem extends StatelessWidget {
+  final String label;
+  const _CalendarEventItem({required this.label});
 
   @override
   Widget build(BuildContext context) {
