@@ -15,8 +15,8 @@ class UserEntity {
   factory UserEntity.fromFirestore(Map<String, dynamic> data, String documentId) {
     return UserEntity(
       id: documentId,
-      // Pega o valor da chave 'name' do banco e joga no atributo 'name' da classe
-      name: data['name'] ?? '', 
+      // Tenta pegar 'nomeCompleto' primeiro, depois 'name', e por fim uma string vazia
+      name: data['nomeCompleto'] ?? data['name'] ?? '',
       email: data['email'] ?? '',
       role: data['role'] ?? '',
     );
