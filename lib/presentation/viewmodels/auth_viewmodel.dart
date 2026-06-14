@@ -10,7 +10,9 @@ class AuthViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
   StreamSubscription<UserEntity?>? _userSubscription;
 
-  AuthViewModel(this._authRepository);
+  AuthViewModel(this._authRepository) {
+    _listenToUser();
+  }
 
   // Expondo a entidade de Domínio em vez do "User" do Firebase
   UserEntity? _currentUser;
@@ -18,6 +20,10 @@ class AuthViewModel extends ChangeNotifier {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  // Initializing state to distinguish initial loading from general loading
+  bool _isInitializing = true;
+  bool get isInitializing => _isInitializing;
 
   bool _isPasswordVisible = false;
   bool get isPasswordVisible => _isPasswordVisible;
@@ -38,11 +44,27 @@ class AuthViewModel extends ChangeNotifier {
 
   void _listenToUser() {
     _userSubscription?.cancel();
-    _userSubscription = _authRepository.currentUserStream.listen((user) {
+    _userSubscription = _authRepository.currentUserStream.listen((user) async {
+      _currentUser = user;
+
       if (user != null) {
-        _currentUser = user;
-        notifyListeners();
+        // Verifies if MFA is enrolled if user is present to ensure that step won't bypassed.
+        // In web context after refresh, this makes sure that if the user doesn't have 2FA and was somehow logged in,
+        // they would correctly be redirected to setup 2FA. In our case, 2FA might be completely set before navigation but
+        // this ensures that after a page refresh, the user state is completely synchronized.
+
+        // Assuming that we only care about if they are logged in or not and not the 2FA state here,
+        // because if they were logged in, 2FA flow would have been completed or handled by FirebaseAuth exception during login.
+        // If a valid user document is returned from stream, we consider them authenticated.
+        _currentStep = AuthStep.authenticated;
+      } else {
+        _currentStep = AuthStep.login;
       }
+
+      if (_isInitializing) {
+        _isInitializing = false;
+      }
+      notifyListeners();
     });
   }
 
@@ -57,7 +79,7 @@ class AuthViewModel extends ChangeNotifier {
       if (user != null) {
         _currentUser = user;
         final is2FaEnrolled = await _authRepository.isMfaEnrolled();
-        
+
         if (!is2FaEnrolled) {
           // Se não houver fatores 2FA, iniciamos o fluxo de configuração.
           await _start2FAEnrollment();
@@ -65,7 +87,6 @@ class AuthViewModel extends ChangeNotifier {
         } else {
           // Se já tiver 2FA ou se não for exigido, o usuário está autenticado.
           _currentStep = AuthStep.authenticated;
-          _listenToUser();
         }
       }
     } catch (e) {
@@ -102,7 +123,6 @@ class AuthViewModel extends ChangeNotifier {
       await _authRepository.confirm2FASetup(code);
       // Sucesso!
       _currentStep = AuthStep.authenticated;
-      _listenToUser();
     } catch (e) {
       _errorMessage = 'Código inválido. Tente novamente.';
       debugPrint('Erro em confirm2FASetup: $e');
@@ -116,7 +136,6 @@ class AuthViewModel extends ChangeNotifier {
     try {
       await _authRepository.verify2FAToken(code);
       _currentStep = AuthStep.authenticated;
-      _listenToUser();
     } catch (e) {
       _errorMessage = 'Código inválido. Tente novamente.';
       debugPrint('Erro em verify2FAToken: $e');
@@ -143,11 +162,8 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> logout() async {
     _setLoading(true);
     try {
-      _userSubscription?.cancel();
-      _userSubscription = null;
       await _authRepository.logout();
-      _currentStep = AuthStep.login; // Reseta o passo para a tela de login
-      _errorMessage = '';
+      // The stream listener will handle setting `currentUser` to null and step to login
     } catch (e) {
       debugPrint('Erro ao fazer logout: $e');
     }

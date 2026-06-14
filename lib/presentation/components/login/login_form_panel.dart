@@ -36,7 +36,10 @@ class LoginFormPanel extends StatelessWidget {
           children: [
             Icon(Icons.check_circle, color: Colors.green, size: 64),
             SizedBox(height: 16),
-            Text('Acesso Liberado!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              'Acesso Liberado!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ],
         );
       case AuthStep.login:
@@ -78,10 +81,15 @@ class _LoginFieldsWidgetState extends State<_LoginFieldsWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Verifique se a imagem existe em assets/images/logoeuro.png
-          Image.asset('assets/images/logoeuro.png', height: 60, fit: BoxFit.contain, 
-            errorBuilder: (context, error, stackTrace) => const Icon(Icons.business, size: 60, color: euroBlue)),
+          Image.asset(
+            'assets/images/logoeuro.png',
+            height: 60,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.business, size: 60, color: euroBlue),
+          ),
           const SizedBox(height: 32),
-          
+
           TextFormField(
             controller: _emailController,
             decoration: const InputDecoration(
@@ -98,7 +106,7 @@ class _LoginFieldsWidgetState extends State<_LoginFieldsWidget> {
             },
           ),
           const SizedBox(height: 16),
-          
+
           TextFormField(
             controller: _passwordController,
             obscureText: !viewModel.isPasswordVisible,
@@ -106,17 +114,25 @@ class _LoginFieldsWidgetState extends State<_LoginFieldsWidget> {
               labelText: 'Senha',
               prefixIcon: const Icon(Icons.lock_outline, color: euroBlue),
               suffixIcon: IconButton(
-                icon: Icon(viewModel.isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+                icon: Icon(
+                  viewModel.isPasswordVisible
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                ),
                 onPressed: viewModel.togglePasswordVisibility,
               ),
               border: const OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) return 'Obrigatório';
-              if (value.length < 8) return 'A senha deve ter no mínimo 8 caracteres';
-              if (!value.contains(RegExp(r'[A-Z]'))) return 'Deve conter uma letra maiúscula';
-              if (!value.contains(RegExp(r'[a-z]'))) return 'Deve conter uma letra minúscula';
-              if (!value.contains(RegExp(r'[0-9]'))) return 'Deve conter um número';
+              if (value.length < 8)
+                return 'A senha deve ter no mínimo 8 caracteres';
+              if (!value.contains(RegExp(r'[A-Z]')))
+                return 'Deve conter uma letra maiúscula';
+              if (!value.contains(RegExp(r'[a-z]')))
+                return 'Deve conter uma letra minúscula';
+              if (!value.contains(RegExp(r'[0-9]')))
+                return 'Deve conter um número';
               if (!value.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'))) {
                 return 'Deve conter um caractere especial';
               }
@@ -129,27 +145,43 @@ class _LoginFieldsWidgetState extends State<_LoginFieldsWidget> {
             const SizedBox(height: 16),
             Text(
               viewModel.errorMessage,
-              style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
 
           const SizedBox(height: 24),
-          
+
           SizedBox(
             height: 50,
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: euroBlue, foregroundColor: Colors.white),
-              onPressed: viewModel.isLoading 
-                ? null 
-                : () {
-                    if (_formKey.currentState!.validate()) {
-                      viewModel.login(_emailController.text, _passwordController.text);
-                    }
-                  },
-              child: viewModel.isLoading 
-                ? const CircularProgressIndicator(color: Colors.white) 
-                : const Text('Entrar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: euroBlue,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: viewModel.isLoading
+                  ? null
+                  : () {
+                      if (_formKey.currentState!.validate()) {
+                        viewModel.login(
+                          _emailController.text,
+                          _passwordController.text,
+                        );
+                      }
+                    },
+              child: viewModel.isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      'Entrar',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
         ],

@@ -12,10 +12,7 @@ import '../viewmodels/profile_viewmodel.dart';
 import '../viewmodels/training_viewmodel.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({
-    super.key,
-    this.initialRoute = '/home',
-  });
+  const MainLayout({super.key, this.initialRoute = '/home'});
 
   final String initialRoute;
 
@@ -46,7 +43,8 @@ class _MainLayoutState extends State<MainLayout> {
       case '/calendario': return 'Calendário';
       case '/profile': return 'Meu Perfil';
       case '/home':
-      default: return 'Dashboard';
+      default:
+        return 'Dashboard';
     }
   }
 
@@ -74,17 +72,11 @@ class _MainLayoutState extends State<MainLayout> {
       body: Row(
         children: [
           // A Sidebar agora recebe o callback de navegação e a rota ativa
-          AppSidebar(
-            activeRoute: _activeRoute,
-            onNavigate: _onNavigate,
-          ),
+          AppSidebar(activeRoute: _activeRoute, onNavigate: _onNavigate),
           Expanded(
             child: Column(
               children: [
-                AppHeader(
-                  title: _getHeaderTitle(),
-                  showBackButton: false,
-                ),
+                AppHeader(title: _getHeaderTitle(), showBackButton: false),
                 // A injeção dinâmica da classe ocorre aqui no body
                 Expanded(child: _buildDynamicBody()),
                 const AppFooter(),

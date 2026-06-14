@@ -79,7 +79,9 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFAF9F6),
         border: Border(
-          bottom: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          bottom: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+          ),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -87,7 +89,10 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
         children: [
           if (showBackButton)
             IconButton(
-              icon: const Icon(LucideIcons.chevronLeft, color: Color(0xFF1A1C1A)),
+              icon: const Icon(
+                LucideIcons.chevronLeft,
+                color: Color(0xFF1A1C1A),
+              ),
               onPressed: onBack ?? () => Navigator.pop(context),
             ),
           Text(

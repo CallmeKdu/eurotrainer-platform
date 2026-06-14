@@ -15,7 +15,8 @@ class NoteCard extends StatelessWidget {
           context: context,
           builder: (_) => NoteEditorDialog(
             note: note, // Passa a nota atual
-            initialReadOnly: true, // Bloqueia tudo (some barra de ferramentas, botões e não deixa digitar)
+            initialReadOnly:
+                true, // Bloqueia tudo (some barra de ferramentas, botões e não deixa digitar)
           ),
         );
       },

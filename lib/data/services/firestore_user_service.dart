@@ -24,7 +24,10 @@ class FirestoreUserService {
   // Atualiza dados no documento do usuário
   Future<void> updateUser(String uid, Map<String, dynamic> data) async {
     try {
-      await _firestore.collection('users').doc(uid).set(data, SetOptions(merge: true));
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .set(data, SetOptions(merge: true));
     } catch (e) {
       throw Exception('Erro ao atualizar perfil do usuário: $e');
     }

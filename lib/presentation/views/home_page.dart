@@ -219,9 +219,14 @@ class _CertificatesCard extends StatelessWidget {
               foregroundColor: theme.colorScheme.onPrimaryContainer,
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Acessar certificados', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Acessar certificados',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ),
@@ -251,17 +256,41 @@ class _TrainingCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                    Text('EuroAcademy: Bem-vindo!', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface, fontSize: 20)),
+                  children: [
+                    Text(
+                      'EuroAcademy: Bem-vindo!',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                        fontSize: 20,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text('Integração à plataforma', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                    Text(
+                      'Integração à plataforma',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: const Color(0xFFE5EDFF), borderRadius: BorderRadius.circular(16)),
-                  child: Text('Novo', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5EDFF),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  'Novo',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
             ],
           ),
@@ -306,9 +335,11 @@ class _TrainingCard extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 elevation: 0,
               ),
               child: const Text('Acessar Curso'),
@@ -332,12 +363,27 @@ class _StatsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 20),
-          Text('92', style: theme.textTheme.displayLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+          Text(
+            '92',
+            style: theme.textTheme.displayLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: theme.colorScheme.tertiaryContainer, borderRadius: BorderRadius.circular(16)),
-            child: Text('Top 15%', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onTertiaryContainer)),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              'Top 15%',
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onTertiaryContainer,
+              ),
+            ),
           ),
           const SizedBox(height: 32),
           SizedBox(
@@ -354,7 +400,14 @@ class _StatsCard extends StatelessWidget {
                   strokeCap: StrokeCap.round,
                 ),
                 Center(
-                  child: Text('PONTOS', style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurfaceVariant, letterSpacing: 1.5)),
+                  child: Text(
+                    'PONTOS',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -363,9 +416,17 @@ class _StatsCard extends StatelessWidget {
           Text.rich(
             TextSpan(
               text: 'Você está entre os ',
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
               children: [
-                TextSpan(text: '15% melhores', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+                TextSpan(
+                  text: '15% melhores',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
                 const TextSpan(text: ' do departamento.'),
               ],
             ),

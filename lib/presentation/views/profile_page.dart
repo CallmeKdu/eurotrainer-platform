@@ -49,12 +49,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (widget.viewModel.errorMessage.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.viewModel.errorMessage), backgroundColor: Theme.of(context).colorScheme.error),
+        SnackBar(
+          content: Text(widget.viewModel.errorMessage),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
       widget.viewModel.clearMessages();
     } else if (widget.viewModel.successMessage.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.viewModel.successMessage), backgroundColor: Colors.green),
+        SnackBar(
+          content: Text(widget.viewModel.successMessage),
+          backgroundColor: Colors.green,
+        ),
       );
       widget.viewModel.clearMessages();
     }
@@ -80,20 +86,24 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               GestureDetector(
                 onTap: widget.viewModel.isLoading
-                  ? null
-                  : () => widget.viewModel.pickAndUploadImage(user.id),
+                    ? null
+                    : () => widget.viewModel.pickAndUploadImage(user.id),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                      backgroundImage: user.photoUrl != null && user.photoUrl!.isNotEmpty
+                      backgroundColor:
+                          theme.colorScheme.surfaceContainerHighest,
+                      backgroundImage:
+                          user.photoUrl != null && user.photoUrl!.isNotEmpty
                           ? NetworkImage(user.photoUrl!)
                           : null,
                       child: user.photoUrl == null || user.photoUrl!.isEmpty
                           ? Text(
-                              user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                              user.name.isNotEmpty
+                                  ? user.name[0].toUpperCase()
+                                  : '?',
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -185,10 +195,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     labelText: 'Cargo',
                     border: const OutlineInputBorder(),
                     filled: !_isEditing,
-                    fillColor: !_isEditing ? theme.colorScheme.surfaceContainer : null,
+                    fillColor: !_isEditing
+                        ? theme.colorScheme.surfaceContainer
+                        : null,
                     prefixIcon: const Icon(Icons.work),
                   ),
-                  validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obrigatório'
+                      : null,
                 ),
                 const SizedBox(height: 24),
 
@@ -201,7 +215,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     labelText: 'Mini Bio',
                     border: const OutlineInputBorder(),
                     filled: !_isEditing,
-                    fillColor: !_isEditing ? theme.colorScheme.surfaceContainer : null,
+                    fillColor: !_isEditing
+                        ? theme.colorScheme.surfaceContainer
+                        : null,
                   ),
                 ),
 
@@ -213,36 +229,48 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     if (_isEditing) ...[
                       TextButton(
-                        onPressed: widget.viewModel.isLoading ? null : () {
-                          setState(() {
-                            _isEditing = false;
-                            // Reverte os valores
-                            _roleController.text = user.role;
-                            _bioController.text = user.bio ?? '';
-                          });
-                        },
+                        onPressed: widget.viewModel.isLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  _isEditing = false;
+                                  // Reverte os valores
+                                  _roleController.text = user.role;
+                                  _bioController.text = user.bio ?? '';
+                                });
+                              },
                         child: const Text('Cancelar'),
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton(
-                        onPressed: widget.viewModel.isLoading ? null : () {
-                          if (_formKey.currentState!.validate()) {
-                            widget.viewModel.updateProfileData(
-                              user.id,
-                              _roleController.text,
-                              _bioController.text,
-                            ).then((_) {
-                              if (mounted) {
-                                setState(() {
-                                  _isEditing = false;
-                                });
-                              }
-                            });
-                          }
-                        },
+                        onPressed: widget.viewModel.isLoading
+                            ? null
+                            : () {
+                                if (_formKey.currentState!.validate()) {
+                                  widget.viewModel
+                                      .updateProfileData(
+                                        user.id,
+                                        _roleController.text,
+                                        _bioController.text,
+                                      )
+                                      .then((_) {
+                                        if (mounted) {
+                                          setState(() {
+                                            _isEditing = false;
+                                          });
+                                        }
+                                      });
+                                }
+                              },
                         child: widget.viewModel.isLoading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Salvar Alterações'),
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text('Salvar Alterações'),
                       ),
                     ] else ...[
                       ElevatedButton.icon(
@@ -275,8 +303,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
           OutlinedButton.icon(
             onPressed: widget.viewModel.isLoading
-              ? null
-              : () => widget.viewModel.sendPasswordResetEmail(user.email),
+                ? null
+                : () => widget.viewModel.sendPasswordResetEmail(user.email),
             icon: const Icon(Icons.lock_reset),
             label: const Text('Redefinir Senha'),
             style: OutlinedButton.styleFrom(

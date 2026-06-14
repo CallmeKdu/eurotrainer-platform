@@ -6,17 +6,20 @@ class UserEntity {
   final String? photoUrl;
   final String? bio;
 
-// Construtor para criar uma instância de UserEntity
+  // Construtor para criar uma instância de UserEntity
   UserEntity({
-    required this.id, 
-    required this.name, 
-    required this.email, 
+    required this.id,
+    required this.name,
+    required this.email,
     required this.role,
     this.photoUrl,
     this.bio,
   });
 
-  factory UserEntity.fromFirestore(Map<String, dynamic> data, String documentId) {
+  factory UserEntity.fromFirestore(
+    Map<String, dynamic> data,
+    String documentId,
+  ) {
     return UserEntity(
       id: documentId,
       // Tenta pegar 'nomeCompleto' primeiro, depois 'name', e por fim uma string vazia

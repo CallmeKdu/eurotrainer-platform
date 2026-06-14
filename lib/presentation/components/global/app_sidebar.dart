@@ -10,7 +10,7 @@ class AppSidebar extends StatelessWidget {
   final void Function(String)? onNavigate;
 
   const AppSidebar({
-    super.key, 
+    super.key,
     this.activeRoute = '/home', // Por padrão, ele assume que é a Home
     this.onNavigate,
   });
@@ -22,7 +22,9 @@ class AppSidebar extends StatelessWidget {
       width: 260,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        border: Border(right: BorderSide(color: theme.colorScheme.surfaceContainerHighest)),
+        border: Border(
+          right: BorderSide(color: theme.colorScheme.surfaceContainerHighest),
+        ),
       ),
       child: Column(
         children: [
@@ -56,24 +58,29 @@ class AppSidebar extends StatelessWidget {
               children: [
                 // 2. PAINEL
                 _SidebarItem(
-                  icon: Icons.dashboard, 
-                  label: 'Painel', 
-                  isActive: activeRoute == '/home', // Fica ativo se estiver na Home
+                  icon: Icons.dashboard,
+                  label: 'Painel',
+                  isActive:
+                      activeRoute == '/home', // Fica ativo se estiver na Home
                   onTap: () {
-                    if (activeRoute == '/home') return; // Bloqueia o clique duplo
+                    if (activeRoute == '/home')
+                      return; // Bloqueia o clique duplo
                     if (onNavigate != null) {
                       onNavigate!('/home');
                     } else {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/home')),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const MainLayout(initialRoute: '/home'),
+                        ),
                       );
                     }
                   },
                 ),
-                
+
                 _SidebarItem(
-                  icon: Icons.security, 
+                  icon: Icons.security,
                   label: 'Treinamentos',
                   isActive: activeRoute == '/trainings',
                   onTap: () {
@@ -83,26 +90,35 @@ class AppSidebar extends StatelessWidget {
                     } else {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/trainings')),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const MainLayout(initialRoute: '/trainings'),
+                        ),
                       );
                     }
                   },
                 ),
                 const _SidebarItem(icon: Icons.bar_chart, label: 'Análises'),
-                
+
                 // 3. NOTAS
                 _SidebarItem(
-                  icon: Icons.edit_document, 
+                  icon: Icons.edit_document,
                   label: 'Notas',
-                  isActive: activeRoute == '/notes', // Fica "amarelão" se estiver nas notas
+                  isActive:
+                      activeRoute ==
+                      '/notes', // Fica "amarelão" se estiver nas notas
                   onTap: () {
-                    if (activeRoute == '/notes') return; // Bloqueia empilhar 3 vezes!
+                    if (activeRoute == '/notes')
+                      return; // Bloqueia empilhar 3 vezes!
                     if (onNavigate != null) {
                       onNavigate!('/notes');
                     } else {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/notes')),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const MainLayout(initialRoute: '/notes'),
+                        ),
                       );
                     }
                   },
@@ -123,7 +139,10 @@ class AppSidebar extends StatelessWidget {
                     } else {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const MainLayout(initialRoute: '/profile')),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const MainLayout(initialRoute: '/profile'),
+                        ),
                       );
                     }
                   },
@@ -137,11 +156,11 @@ class AppSidebar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _SidebarItem(
-                  icon: Icons.logout, 
+                  icon: Icons.logout,
                   label: 'Sair',
                   onTap: () async {
                     final authViewModel = context.read<AuthViewModel>();
-                    await authViewModel.logout(); 
+                    await authViewModel.logout();
                     if (context.mounted) {
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -166,7 +185,12 @@ class _SidebarItem extends StatelessWidget {
   final bool isActive;
   final VoidCallback? onTap;
 
-  const _SidebarItem({required this.icon, required this.label, this.isActive = false, this.onTap});
+  const _SidebarItem({
+    required this.icon,
+    required this.label,
+    this.isActive = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -174,15 +198,25 @@ class _SidebarItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
-        color: isActive ? theme.colorScheme.primaryContainer : Colors.transparent,
+        color: isActive
+            ? theme.colorScheme.primaryContainer
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(icon, color: isActive ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant, size: 20),
+        leading: Icon(
+          icon,
+          color: isActive
+              ? theme.colorScheme.primary
+              : theme.colorScheme.onSurfaceVariant,
+          size: 20,
+        ),
         title: Text(
           label,
           style: theme.textTheme.labelLarge?.copyWith(
-            color: isActive ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+            color: isActive
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurfaceVariant,
           ),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),

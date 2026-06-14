@@ -38,7 +38,8 @@ class TrainingViewModel extends ChangeNotifier {
       TrainingModel(
         id: 'welcome_1',
         title: 'EuroAcademy: Bem-vindo!',
-        description: 'Curso de integração e boas-vindas à plataforma Euro Academy. Conheça os recursos e a navegação.',
+        description:
+            'Curso de integração e boas-vindas à plataforma Euro Academy. Conheça os recursos e a navegação.',
         deadline: 'Sem prazo',
         scormUrl: 'https://eurotrainer-platform.web.app/index.html',
         tagText: 'EA',
@@ -47,7 +48,8 @@ class TrainingViewModel extends ChangeNotifier {
       TrainingModel(
         id: '2',
         title: 'Conformidade LGPD',
-        description: 'Revisão das diretrizes da seção 4.2 referentes a retenção de dados e privacidade dos colaboradores.',
+        description:
+            'Revisão das diretrizes da seção 4.2 referentes a retenção de dados e privacidade dos colaboradores.',
         deadline: '12 Out, 2026',
         scormUrl: '',
         tagText: 'GD',
@@ -56,11 +58,12 @@ class TrainingViewModel extends ChangeNotifier {
       TrainingModel(
         id: '3',
         title: 'Segurança da Informação',
-        description: 'Módulo básico focado em prevenção de phishing, engenharia social e uso seguro de dispositivos corporativos.',
+        description:
+            'Módulo básico focado em prevenção de phishing, engenharia social e uso seguro de dispositivos corporativos.',
         deadline: '20 Out, 2026',
         scormUrl: '',
         tagText: 'TR',
-        tagColorHex: 0xFF82B2FE, 
+        tagColorHex: 0xFF82B2FE,
       ),
     ];
 
