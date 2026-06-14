@@ -1,37 +1,7 @@
 import 'package:flutter/material.dart';
-
-/*
-class AppHeader extends StatelessWidget {
-  const AppHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(bottom: BorderSide(color: theme.colorScheme.surfaceContainerHighest)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          IconButton(icon: Icon(Icons.notifications_none, color: theme.colorScheme.onSurfaceVariant), onPressed: () {}),
-          IconButton(icon: Icon(Icons.settings_outlined, color: theme.colorScheme.onSurfaceVariant), onPressed: () {}),
-          const SizedBox(width: 16),
-          const CircleAvatar(
-            radius: 16,
-            backgroundImage: NetworkImage('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-*/
-import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
+import '../../viewmodels/auth_viewmodel.dart';
 
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -48,13 +18,15 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authViewModel = context.watch<AuthViewModel>();
+    final user = authViewModel.currentUser;
     
     return Container(
       height: preferredSize.height,
       decoration: BoxDecoration(
         color: const Color(0xFFFAF9F6),
         border: Border(
-          bottom: BorderSide(color: theme.colorScheme.outlineVariant.withOpacity(0.3)),
+          bottom: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -79,9 +51,21 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(LucideIcons.bell, size: 20),
             onPressed: () {},
           ),
-          const CircleAvatar(
+          CircleAvatar(
             radius: 16,
-            backgroundColor: Color(0xFFEEEEEB),
+            backgroundColor: const Color(0xFFEEEEEB),
+            backgroundImage: user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+                ? NetworkImage(user.photoUrl!)
+                : null,
+            child: user?.photoUrl == null || user!.photoUrl!.isEmpty
+                ? Text(
+                    user?.name != null && user!.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  )
+                : null,
           ),
         ],
       ),

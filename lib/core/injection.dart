@@ -8,6 +8,8 @@ import '../presentation/viewmodels/training_viewmodel.dart';
 import '../presentation/viewmodels/course_player_viewmodel.dart';
 import '../data/services/firebase_auth_service.dart';
 import '../data/services/firestore_user_service.dart';
+import '../data/services/firebase_storage_service.dart';
+import '../presentation/viewmodels/profile_viewmodel.dart';
 /*
 criando a injeção de dependências para o projeto, usando o get_it (variável sl) para registrar as dependências, como o Dio 
 para fazer requisições HTTP. A função initInjection é chamada no início do aplicativo para configurar as dependências necessárias.
@@ -27,6 +29,7 @@ Future<void> initInjection() async {
   // Services (Usamos LazySingleton para criar uma única instância ao decorrer do app)
   sl.registerLazySingleton<FirebaseAuthService>(() => FirebaseAuthService());
   sl.registerLazySingleton<FirestoreUserService>(() => FirestoreUserService());
+  sl.registerLazySingleton<FirebaseStorageService>(() => FirebaseStorageService());
 
   // Repositories (Injetamos automaticamente os services registrados acima através do sl())
   sl.registerLazySingleton<AuthRepository>(() => AuthRepository(sl(), sl()));
@@ -36,4 +39,5 @@ Future<void> initInjection() async {
   sl.registerFactory<HomeViewModel>(() => HomeViewModel());
   sl.registerFactory<TrainingViewModel>(() => TrainingViewModel());
   sl.registerFactory<CoursePlayerViewModel>(() => CoursePlayerViewModel());
+  sl.registerFactory<ProfileViewModel>(() => ProfileViewModel(sl(), sl(), sl()));
 }

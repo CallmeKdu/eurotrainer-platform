@@ -28,7 +28,6 @@ class _LoginPageState extends State<LoginPage> {
       case AuthStep.authenticated:
         return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary));
       case AuthStep.login:
-      default:
         return const LoginFormPanel();
     }
   }

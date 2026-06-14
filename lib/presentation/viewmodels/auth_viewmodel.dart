@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import '../../domain/models/user_entity.dart';
 import '../../data/repositories/auth_repository.dart';
+import 'dart:async';
 
 enum AuthStep { login, setup2fa, verify2fa, authenticated }
 
 class AuthViewModel extends ChangeNotifier {
   // A ViewModel desconhece completamente o Firebase. Ela depende apenas da abstração.
   final AuthRepository _authRepository;
+  StreamSubscription<UserEntity?>? _userSubscription;
 
   AuthViewModel(this._authRepository);
 
@@ -34,6 +36,16 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _listenToUser() {
+    _userSubscription?.cancel();
+    _userSubscription = _authRepository.currentUserStream.listen((user) {
+      if (user != null) {
+        _currentUser = user;
+        notifyListeners();
+      }
+    });
+  }
+
   // 1. LOGIN: Tenta autenticar e lida com a exigência de 2FA.
   Future<void> login(String email, String password) async {
     _setLoading(true);
@@ -53,6 +65,7 @@ class AuthViewModel extends ChangeNotifier {
         } else {
           // Se já tiver 2FA ou se não for exigido, o usuário está autenticado.
           _currentStep = AuthStep.authenticated;
+          _listenToUser();
         }
       }
     } catch (e) {
@@ -89,6 +102,7 @@ class AuthViewModel extends ChangeNotifier {
       await _authRepository.confirm2FASetup(code);
       // Sucesso!
       _currentStep = AuthStep.authenticated;
+      _listenToUser();
     } catch (e) {
       _errorMessage = 'Código inválido. Tente novamente.';
       debugPrint('Erro em confirm2FASetup: $e');
@@ -102,6 +116,7 @@ class AuthViewModel extends ChangeNotifier {
     try {
       await _authRepository.verify2FAToken(code);
       _currentStep = AuthStep.authenticated;
+      _listenToUser();
     } catch (e) {
       _errorMessage = 'Código inválido. Tente novamente.';
       debugPrint('Erro em verify2FAToken: $e');
@@ -128,6 +143,8 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> logout() async {
     _setLoading(true);
     try {
+      _userSubscription?.cancel();
+      _userSubscription = null;
       await _authRepository.logout();
       _currentStep = AuthStep.login; // Reseta o passo para a tela de login
       _errorMessage = '';
@@ -135,5 +152,11 @@ class AuthViewModel extends ChangeNotifier {
       debugPrint('Erro ao fazer logout: $e');
     }
     _setLoading(false);
+  }
+
+  @override
+  void dispose() {
+    _userSubscription?.cancel();
+    super.dispose();
   }
 }
