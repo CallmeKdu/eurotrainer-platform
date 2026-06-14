@@ -1,4 +1,7 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import '../../views/accessibility_screen.dart';
 
 class AppFooter extends StatelessWidget {
   const AppFooter({super.key});
@@ -30,11 +33,83 @@ class AppFooter extends StatelessWidget {
             spacing: 24,
             runSpacing: 12,
             alignment: isMobile ? WrapAlignment.center : WrapAlignment.end,
-            children: const [
-              _FooterLink('Política de Privacidade'),
-              _FooterLink('Termos de Serviço'),
-              _FooterLink('Acessibilidade'),
-              _FooterLink('Contate o Suporte'),
+            children: [
+              _FooterLink(
+                'Termos de Privacidade',
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Termos de Privacidade'),
+                      content: const SingleChildScrollView(
+                        child: Text('Estes são os Termos de Privacidade da Euro Academy...'),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Fechar'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              _FooterLink(
+                'Termos de Serviço',
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Termos de Serviço'),
+                      content: const SingleChildScrollView(
+                        child: Text('Estes são os Termos de Serviço da Euro Academy...'),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Fechar'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              _FooterLink(
+                'Acessibilidade',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AccessibilityScreen()),
+                  );
+                },
+              ),
+              _FooterLink(
+                'Contate o Suporte',
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Suporte'),
+                      content: const Text(
+                        'Para entrar em contato com o suporte ou consultar o código fonte do projeto, visite nosso repositório no GitHub.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Fechar'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            html.window.open('https://github.com/CallmeKdu/eurotrainer-platform', '_blank');
+                          },
+                          child: const Text('Ir para o GitHub'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ],
           );
 
@@ -65,7 +140,8 @@ class AppFooter extends StatelessWidget {
 
 class _FooterLink extends StatefulWidget {
   final String text;
-  const _FooterLink(this.text);
+  final VoidCallback onTap;
+  const _FooterLink(this.text, {required this.onTap});
   @override
   State<_FooterLink> createState() => _FooterLinkState();
 }
@@ -77,7 +153,7 @@ class _FooterLinkState extends State<_FooterLink> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return InkWell(
-      onTap: () {},
+      onTap: widget.onTap,
       onHover: (hovering) => setState(() => _isHovering = hovering),
       child: AnimatedDefaultTextStyle(
         duration: const Duration(milliseconds: 200),

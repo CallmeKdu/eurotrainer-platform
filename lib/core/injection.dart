@@ -12,6 +12,10 @@ import '../data/repositories/note_repository.dart';
 import '../data/services/firestore_note_service.dart';
 import '../presentation/viewmodels/notes_viewmodel.dart';
 
+import '../data/services/firebase_storage_service.dart';
+import '../presentation/viewmodels/profile_viewmodel.dart';
+import '../presentation/viewmodels/notes_viewmodel.dart';
+import '../presentation/viewmodels/accessibility_viewmodel.dart';
 /*
 criando a injeção de dependências para o projeto, usando o get_it (variável sl) para registrar as dependências, como o Dio 
 para fazer requisições HTTP. A função initInjection é chamada no início do aplicativo para configurar as dependências necessárias.
@@ -32,6 +36,7 @@ Future<void> initInjection() async {
   sl.registerLazySingleton<FirebaseAuthService>(() => FirebaseAuthService());
   sl.registerLazySingleton<FirestoreUserService>(() => FirestoreUserService());
   sl.registerLazySingleton<FirestoreNoteService>(() => FirestoreNoteService());
+  sl.registerLazySingleton<FirebaseStorageService>(() => FirebaseStorageService());
 
   // Repositories (Injetamos automaticamente os services registrados acima através do sl())
   sl.registerLazySingleton<AuthRepository>(() => AuthRepository(sl(), sl()));
@@ -40,7 +45,10 @@ Future<void> initInjection() async {
   // ViewModels (Usamos Factory pois dependendo do fluxo pode ser recriado se destruído na UI)
   sl.registerFactory<AuthViewModel>(() => AuthViewModel(sl()));
   sl.registerFactory<HomeViewModel>(() => HomeViewModel());
-  sl.registerFactory<TrainingViewModel>(() => TrainingViewModel());
+  sl.registerLazySingleton<TrainingViewModel>(() => TrainingViewModel());
   sl.registerFactory<CoursePlayerViewModel>(() => CoursePlayerViewModel());
   sl.registerFactory<NotesViewModel>(() => NotesViewModel(sl(), sl()));
+  sl.registerFactory<ProfileViewModel>(() => ProfileViewModel(sl(), sl(), sl()));
+  sl.registerLazySingleton<NotesViewModel>(() => NotesViewModel());
+  sl.registerLazySingleton<AccessibilityViewModel>(() => AccessibilityViewModel());
 }

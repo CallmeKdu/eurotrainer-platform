@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../components/notes/note_card.dart';
 import '../viewmodels/notes_viewmodel.dart';
 
-class NotesPage extends StatefulWidget {
+class NotesPage extends StatelessWidget {
   const NotesPage({super.key});
 
   @override
@@ -17,13 +17,16 @@ class _NotesPageState extends State<NotesPage> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        _buildContent(),
-        _buildFAB(),
+        _buildContent(context),
+        _buildFAB(context),
       ],
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final notesViewModel = context.watch<NotesViewModel>();
+    final notes = notesViewModel.notes;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
       child: Column(
@@ -87,6 +90,29 @@ class _NotesPageState extends State<NotesPage> {
               );
             },
           ),
+          // Grid de Notas
+          notes.isEmpty
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 60.0),
+                    child: Text(
+                      'Nenhuma anotação criada ainda.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+                )
+              : GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 400,
+                    mainAxisExtent: 280,
+                    crossAxisSpacing: 24,
+                    mainAxisSpacing: 24,
+                  ),
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) => NoteCard(note: notes[index]),
+                ),
         ],
       ),
     );
@@ -121,6 +147,7 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   Widget _buildFAB() {
+  Widget _buildFAB(BuildContext context) {
     return Positioned(
       bottom: 40,
       right: 40,
@@ -130,6 +157,8 @@ class _NotesPageState extends State<NotesPage> {
             context: context,
             barrierDismissible: false,
             builder: (_) => const NoteEditorDialog(),
+            barrierDismissible: false, // Força a usar o botão Cancelar para sair
+            builder: (_) => const NoteEditorDialog(), // Sem nota = Modo Criação
           );
         },
         backgroundColor: const Color(0xFFFFF209),
@@ -137,4 +166,5 @@ class _NotesPageState extends State<NotesPage> {
       ),
     );
   }
+}
 }
