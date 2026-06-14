@@ -13,11 +13,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Instancia a HomeViewModel exclusivamente para a HomePage
-    return ChangeNotifierProvider<HomeViewModel>(
-      create: (providerContext) {
-        final homeViewModel = sl<HomeViewModel>();
-        final authViewModel = providerContext.read<AuthViewModel>();
-        // Injeta os dados do usuário explicitamente assim que a página é construída
+    // Usamos ProxyProvider para garantir que a HomeViewModel sempre receba o usuário atualizado
+    return ChangeNotifierProxyProvider<AuthViewModel, HomeViewModel>(
+      create: (_) => sl<HomeViewModel>(),
+      update: (_, authViewModel, homeViewModel) {
+        if (homeViewModel == null) homeViewModel = sl<HomeViewModel>();
         homeViewModel.updateUser(authViewModel.currentUser);
         return homeViewModel;
       },
