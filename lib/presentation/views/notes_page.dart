@@ -9,8 +9,12 @@ class NotesPage extends StatelessWidget {
   const NotesPage({super.key});
 
   @override
+  State<NotesPage> createState() => _NotesPageState();
+}
+
+class _NotesPageState extends State<NotesPage> {
+  @override
   Widget build(BuildContext context) {
-    // Retornamos apenas o conteúdo, o MainLayout cuidará do Menu e do Header!
     return Stack(
       children: [
         _buildContent(context),
@@ -28,7 +32,6 @@ class NotesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título e Botão Classificar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -50,6 +53,43 @@ class NotesPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 40),
+
+          Consumer<NotesViewModel>(
+            builder: (context, viewModel, child) {
+              if (viewModel.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (viewModel.errorMessage.isNotEmpty && viewModel.notes.isEmpty) {
+                 return Center(child: Text(viewModel.errorMessage));
+              }
+
+              if (viewModel.notes.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: Text(
+                      'Nenhuma anotação encontrada.',
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ),
+                );
+              }
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 400,
+                  mainAxisExtent: 280,
+                  crossAxisSpacing: 24,
+                  mainAxisSpacing: 24,
+                ),
+                itemCount: viewModel.notes.length,
+                itemBuilder: (context, index) => NoteCard(note: viewModel.notes[index]),
+              );
+            },
+          ),
           // Grid de Notas
           notes.isEmpty
               ? const Center(
@@ -106,6 +146,7 @@ class NotesPage extends StatelessWidget {
     );
   }
 
+  Widget _buildFAB() {
   Widget _buildFAB(BuildContext context) {
     return Positioned(
       bottom: 40,
@@ -114,6 +155,8 @@ class NotesPage extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
+            barrierDismissible: false,
+            builder: (_) => const NoteEditorDialog(),
             barrierDismissible: false, // Força a usar o botão Cancelar para sair
             builder: (_) => const NoteEditorDialog(), // Sem nota = Modo Criação
           );
@@ -123,4 +166,5 @@ class NotesPage extends StatelessWidget {
       ),
     );
   }
+}
 }

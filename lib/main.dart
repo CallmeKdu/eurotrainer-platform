@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'presentation/viewmodels/auth_viewmodel.dart';
+import 'presentation/viewmodels/notes_viewmodel.dart';
+
 import 'presentation/viewmodels/training_viewmodel.dart';
 import 'presentation/viewmodels/notes_viewmodel.dart';
 import 'presentation/viewmodels/accessibility_viewmodel.dart';
@@ -18,6 +20,16 @@ void main() async {
   
   await di.initInjection(); 
 
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => di.sl<AuthViewModel>()),
+          ChangeNotifierProvider(create: (_) => di.sl<NotesViewModel>()),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  }
   runApp(
     MultiProvider(
       providers: [
