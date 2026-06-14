@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'presentation/viewmodels/auth_viewmodel.dart';
+import 'presentation/viewmodels/notes_viewmodel.dart';
+
 import 'presentation/views/login_page.dart';
 import 'core/theme/app_theme.dart';
 import 'core/injection.dart' as di; 
@@ -19,6 +21,7 @@ import 'core/injection.dart' as di;
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => di.sl<AuthViewModel>()),
+          ChangeNotifierProvider(create: (_) => di.sl<NotesViewModel>()),
         ],
         child: const MyApp(),
       ),
