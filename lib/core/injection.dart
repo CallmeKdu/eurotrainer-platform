@@ -12,6 +12,8 @@ import '../data/repositories/note_repository.dart';
 import '../data/services/firestore_note_service.dart';
 import '../presentation/viewmodels/notes_viewmodel.dart';
 
+import '../data/services/firestore_course_service.dart';
+import '../presentation/viewmodels/calendar_viewmodel.dart';
 import '../data/services/firebase_storage_service.dart';
 import '../presentation/viewmodels/profile_viewmodel.dart';
 import '../presentation/viewmodels/notes_viewmodel.dart';
@@ -36,6 +38,7 @@ Future<void> initInjection() async {
   sl.registerLazySingleton<FirebaseAuthService>(() => FirebaseAuthService());
   sl.registerLazySingleton<FirestoreUserService>(() => FirestoreUserService());
   sl.registerLazySingleton<FirestoreNoteService>(() => FirestoreNoteService());
+  sl.registerLazySingleton<FirestoreCourseService>(() => FirestoreCourseService());
   sl.registerLazySingleton<FirebaseStorageService>(() => FirebaseStorageService());
 
   // Repositories (Injetamos automaticamente os services registrados acima através do sl())
@@ -48,6 +51,7 @@ Future<void> initInjection() async {
   sl.registerLazySingleton<TrainingViewModel>(() => TrainingViewModel());
   sl.registerFactory<CoursePlayerViewModel>(() => CoursePlayerViewModel());
   sl.registerFactory<NotesViewModel>(() => NotesViewModel(sl(), sl()));
+  sl.registerFactory<CalendarViewModel>(() => CalendarViewModel(sl()));
   sl.registerFactory<ProfileViewModel>(() => ProfileViewModel(sl(), sl(), sl()));
   sl.registerLazySingleton<NotesViewModel>(() => NotesViewModel());
   sl.registerLazySingleton<AccessibilityViewModel>(() => AccessibilityViewModel());
