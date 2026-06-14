@@ -3,6 +3,7 @@ import '../services/firebase_auth_service.dart';
 import '../services/firestore_user_service.dart';
 import '../../domain/models/user_entity.dart';
 
+
 class AuthRepository {
   final FirebaseAuthService _authService;
   final FirestoreUserService _firestoreService; // Adicionamos o novo service aqui
@@ -27,6 +28,8 @@ class AuthRepository {
           'name': userData?['nomeCompleto'] ?? userData?['name'] ?? firebaseUser.displayName ?? '',
           'email': userData?['email'] ?? firebaseUser.email ?? '',
           'role': userData?['role'] ?? 'aluno',
+          'photoUrl': userData?['photoUrl'],
+          'bio': userData?['bio'],
         };
 
         // 3. Utiliza a factory fromFirestore para instanciar a entidade corretamente!
@@ -39,10 +42,28 @@ class AuthRepository {
       // amigável para a ViewModel identificar e redirecionar a tela.
       _resolver = e.resolver;
       throw Exception('mfa_required');
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
        // ... seus tratamentos de erro ...
        rethrow;
     }
+  }
+
+  Stream<UserEntity?> get currentUserStream {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return Stream.value(null);
+
+    return _firestoreService.getUserStream(user.uid).map((snapshot) {
+      if (!snapshot.exists || snapshot.data() == null) return null;
+      final data = snapshot.data()!;
+      final firestoreData = {
+          'name': data['nomeCompleto'] ?? data['name'] ?? user.displayName ?? '',
+          'email': data['email'] ?? user.email ?? '',
+          'role': data['role'] ?? 'aluno',
+          'photoUrl': data['photoUrl'],
+          'bio': data['bio'],
+      };
+      return UserEntity.fromFirestore(firestoreData, user.uid);
+    });
   }
 
   // Verifica se o usuário logado já possui fatores 2FA cadastrados
@@ -92,5 +113,9 @@ class AuthRepository {
     _resolver = null;
     _totpSecret = null;
     await FirebaseAuth.instance.signOut();
+  }
+
+  Future<void> resetPassword(String email) async {
+    await _authService.sendPasswordResetEmail(email);
   }
 }

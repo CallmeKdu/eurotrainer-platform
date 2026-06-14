@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
     return ChangeNotifierProxyProvider<AuthViewModel, HomeViewModel>(
       create: (_) => sl<HomeViewModel>(),
       update: (_, authViewModel, homeViewModel) {
-        if (homeViewModel == null) homeViewModel = sl<HomeViewModel>();
+        homeViewModel ??= sl<HomeViewModel>();
         homeViewModel.updateUser(authViewModel.currentUser);
         return homeViewModel;
       },
@@ -36,7 +36,7 @@ class _HomePageContent extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     // Escutamos as ViewModels necessárias
-    final authViewModel = context.watch<AuthViewModel>();
+
     final homeViewModel = context.watch<HomeViewModel>();
 
     return CustomScrollView(
@@ -146,7 +146,7 @@ class _BentoCard extends StatelessWidget {
         border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -187,7 +187,7 @@ class _CertificatesCard extends StatelessWidget {
         border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
