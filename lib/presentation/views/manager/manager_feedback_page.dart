@@ -8,10 +8,7 @@ class ManagerFeedbackPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ManagerFeedbackViewModel>(
-      create: (_) => sl<ManagerFeedbackViewModel>(),
-      child: const _ManagerFeedbackContentView(),
-    );
+    return const _ManagerFeedbackContentView();
   }
 }
 
@@ -129,6 +126,53 @@ class _ManagerFeedbackContentView extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 32),
+          if (vm.sentFeedbacks.isNotEmpty) ...[
+            Text(
+              'Feedbacks Enviados',
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            ...vm.sentFeedbacks.map((fb) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.colorScheme.surfaceContainerHighest),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Para: ${fb['trainee']}',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          fb['date'],
+                          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Curso: ${fb['course']}',
+                      style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      fb['message'],
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
         ],
       ),
     );

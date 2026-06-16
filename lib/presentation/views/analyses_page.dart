@@ -8,10 +8,7 @@ class AnalysesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AnalysesViewModel>(
-      create: (_) => sl<AnalysesViewModel>()..loadAnalyses(),
-      child: const _AnalysesContentView(),
-    );
+    return const _AnalysesContentView();
   }
 }
 

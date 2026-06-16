@@ -4,19 +4,23 @@ import '../../viewmodels/manager/manager_home_viewmodel.dart';
 import '../../../core/injection.dart';
 
 class ManagerHomePage extends StatelessWidget {
-  const ManagerHomePage({super.key});
+  final Function(String) onNavigate;
+
+  const ManagerHomePage({super.key, required this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ManagerHomeViewModel>(
       create: (_) => sl<ManagerHomeViewModel>(),
-      child: const _ManagerHomeContentView(),
+      child: _ManagerHomeContentView(onNavigate: onNavigate),
     );
   }
 }
 
 class _ManagerHomeContentView extends StatelessWidget {
-  const _ManagerHomeContentView();
+  final Function(String) onNavigate;
+
+  const _ManagerHomeContentView({required this.onNavigate});
 
   @override
   Widget build(BuildContext context) {
@@ -116,17 +120,17 @@ class _ManagerHomeContentView extends StatelessWidget {
               ActionChip(
                 label: const Text('Nova Lista de Chamada'),
                 avatar: const Icon(Icons.add),
-                onPressed: () {},
+                onPressed: () => onNavigate('/manager/attendance'),
               ),
               ActionChip(
                 label: const Text('Fazer Upload de Curso'),
                 avatar: const Icon(Icons.upload),
-                onPressed: () {},
+                onPressed: () => onNavigate('/manager/upload'),
               ),
               ActionChip(
                 label: const Text('Atribuir Curso'),
                 avatar: const Icon(Icons.assignment),
-                onPressed: () {},
+                onPressed: () => onNavigate('/manager/assign'),
               ),
             ],
           ),

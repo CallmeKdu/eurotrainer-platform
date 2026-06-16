@@ -76,21 +76,20 @@ class AuthViewModel extends ChangeNotifier {
     });
   }
 
-  // 1. LOGIN: Tenta autenticar e lida com a exigência de 2FA.
   Future<void> login(String email, String password) async {
     _setLoading(true);
 
     try {
-      // Delega ao Repository a tentativa de login
-      final user = await _authRepository.login(email, password);
+      // Delega ao Repository a tentativa de login com timeout
+      final user = await _authRepository.login(email, password).timeout(const Duration(seconds: 10));
 
       if (user != null) {
         _currentUser = user;
-        final is2FaEnrolled = await _authRepository.isMfaEnrolled();
+        final is2FaEnrolled = await _authRepository.isMfaEnrolled().timeout(const Duration(seconds: 5));
 
         if (!is2FaEnrolled) {
           // Se não houver fatores 2FA, iniciamos o fluxo de configuração.
-          await _start2FAEnrollment();
+          await _start2FAEnrollment().timeout(const Duration(seconds: 15));
           _currentStep = AuthStep.setup2fa;
         } else {
           // Se já tiver 2FA ou se não for exigido, o usuário está autenticado.
@@ -103,7 +102,7 @@ class AuthViewModel extends ChangeNotifier {
       if (e.toString().contains('mfa_required')) {
         _currentStep = AuthStep.verify2fa;
       } else {
-        _errorMessage = 'E-mail ou senha inválidos.';
+        _errorMessage = 'Erro no login ou timeout excedido.';
         debugPrint('Erro no login: $e');
       }
     }

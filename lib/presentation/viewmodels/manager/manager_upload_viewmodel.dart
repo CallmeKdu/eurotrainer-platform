@@ -63,4 +63,20 @@ class ManagerUploadViewModel extends ChangeNotifier {
       }
     });
   }
+
+  Future<void> saveCourseWithoutScorm() async {
+    if (!canUpload) return;
+    _isUploading = true;
+    notifyListeners();
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    _assignViewModel.allCourses.add(
+      CourseData('c_${DateTime.now().millisecondsSinceEpoch}', _courseTitle),
+    );
+
+    _selectedFileName = 'Salvo sem pacote SCORM';
+    _isUploading = false;
+    notifyListeners();
+  }
 }

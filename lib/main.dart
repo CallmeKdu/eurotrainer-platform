@@ -6,6 +6,7 @@ import 'presentation/viewmodels/auth_viewmodel.dart';
 import 'presentation/viewmodels/notes_viewmodel.dart';
 import 'presentation/viewmodels/training_viewmodel.dart';
 import 'presentation/viewmodels/accessibility_viewmodel.dart';
+import 'presentation/viewmodels/analyses_viewmodel.dart';
 import 'presentation/views/login_page.dart';
 import 'presentation/views/auth_wrapper.dart';
 import 'core/theme/app_theme.dart';
@@ -26,6 +27,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => di.sl<TrainingViewModel>()..loadTrainings()),
         ChangeNotifierProvider(create: (_) => di.sl<NotesViewModel>()),
         ChangeNotifierProvider(create: (_) => di.sl<AccessibilityViewModel>()),
+        ChangeNotifierProvider.value(value: di.sl<AnalysesViewModel>()),
       ],
       child: const MyApp(),
     ),

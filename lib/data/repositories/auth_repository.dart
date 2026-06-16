@@ -103,13 +103,17 @@ class AuthRepository {
     if (user == null)
       throw Exception('Usuário não está logado para iniciar 2FA.');
 
-    final session = await user.multiFactor.getSession();
-    _totpSecret = await TotpMultiFactorGenerator.generateSecret(session);
+    try {
+      final session = await user.multiFactor.getSession().timeout(const Duration(seconds: 10));
+      _totpSecret = await TotpMultiFactorGenerator.generateSecret(session).timeout(const Duration(seconds: 10));
 
-    return await _totpSecret!.generateQrCodeUrl(
-      accountName: user.email ?? 'Usuario',
-      issuer: 'EuroAcademy',
-    );
+      return await _totpSecret!.generateQrCodeUrl(
+        accountName: user.email ?? 'Usuario',
+        issuer: 'EuroAcademy',
+      ).timeout(const Duration(seconds: 5));
+    } catch (e) {
+      throw Exception('Timeout ou erro ao gerar QR Code: $e');
+    }
   }
 
   // Confirma o código do App Autenticador durante o primeiro setup (Enrollment)

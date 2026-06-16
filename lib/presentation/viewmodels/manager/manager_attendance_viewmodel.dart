@@ -27,6 +27,43 @@ class ManagerAttendanceViewModel extends ChangeNotifier {
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
 
+  int _currentStep = 0;
+  int get currentStep => _currentStep;
+
+  String? _selectedCourse;
+  String? get selectedCourse => _selectedCourse;
+
+  String? _selectedClass;
+  String? get selectedClass => _selectedClass;
+
+  List<String> get availableCourses => ['Treinamento de Compliance', 'Liderança', 'Segurança da Informação'];
+  
+  List<String> get availableClasses {
+    if (_selectedCourse == null) return [];
+    return ['Turma 1 - Matutino', 'Turma 2 - Noturno', 'Turma Especial - Fim de Semana'];
+  }
+
+  void selectCourse(String course) {
+    _selectedCourse = course;
+    _currentStep = 1;
+    notifyListeners();
+  }
+
+  void selectClass(String className) {
+    _selectedClass = className;
+    _currentStep = 2;
+    notifyListeners();
+  }
+
+  void goBack() {
+    if (_currentStep > 0) {
+      _currentStep--;
+      if (_currentStep == 0) _selectedCourse = null;
+      if (_currentStep == 1) _selectedClass = null;
+      notifyListeners();
+    }
+  }
+
   void setSearchQuery(String query) {
     _searchQuery = query;
     notifyListeners();

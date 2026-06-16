@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../../../../core/injection.dart';
+import '../../viewmodels/manager/manager_assign_viewmodel.dart';
+import '../../viewmodels/manager/manager_feedback_viewmodel.dart';
 import '../../components/global/app_header.dart';
 import '../../components/global/app_footer.dart';
 import '../../components/manager/manager_sidebar.dart';
@@ -63,27 +66,33 @@ class _ManagerLayoutState extends State<ManagerLayout> {
         return ProfilePage(viewModel: sl<ProfileViewModel>());
       case '/manager/home':
       default:
-        return const ManagerHomePage();
+        return ManagerHomePage(onNavigate: _onNavigate);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF9F6),
-      body: Row(
-        children: [
-          ManagerSidebar(activeRoute: _activeRoute, onNavigate: _onNavigate),
-          Expanded(
-            child: Column(
-              children: [
-                AppHeader(title: _getHeaderTitle(), showBackButton: false),
-                Expanded(child: _buildDynamicBody()),
-                AppFooter(),
-              ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ManagerAssignViewModel>.value(value: sl<ManagerAssignViewModel>()),
+        ChangeNotifierProvider<ManagerFeedbackViewModel>.value(value: sl<ManagerFeedbackViewModel>()),
+      ],
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFAF9F6),
+        body: Row(
+          children: [
+            ManagerSidebar(activeRoute: _activeRoute, onNavigate: _onNavigate),
+            Expanded(
+              child: Column(
+                children: [
+                  AppHeader(title: _getHeaderTitle(), showBackButton: false),
+                  Expanded(child: _buildDynamicBody()),
+                  AppFooter(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

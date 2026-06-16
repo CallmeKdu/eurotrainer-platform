@@ -100,14 +100,31 @@ class _ManagerUploadContentView extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 if (!vm.isUploading && vm.selectedFileName == null)
-                  ElevatedButton.icon(
-                    onPressed: vm.canUpload ? vm.pickAndUploadScorm : null,
-                    icon: const Icon(Icons.folder_open),
-                    label: const Text('Procurar Arquivo'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: vm.canUpload ? vm.pickAndUploadScorm : null,
+                        icon: const Icon(Icons.folder_open),
+                        label: const Text('Procurar Arquivo ZIP'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        onPressed: vm.canUpload ? vm.saveCourseWithoutScorm : null,
+                        icon: const Icon(Icons.save),
+                        label: const Text('Salvar Sem Arquivo'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          backgroundColor: theme.colorScheme.tertiary,
+                          foregroundColor: theme.colorScheme.onTertiary,
+                        ),
+                      ),
+                    ],
                   ),
                 if (!vm.canUpload && !vm.isUploading && vm.selectedFileName == null)
                   Padding(

@@ -20,6 +20,11 @@ class AnalysesViewModel extends ChangeNotifier {
     },
   ];
 
+  void addFeedback(Map<String, dynamic> feedback) {
+    feedbacks.insert(0, feedback);
+    notifyListeners();
+  }
+
   Future<void> loadAnalyses() async {
     _isLoading = true;
     notifyListeners();

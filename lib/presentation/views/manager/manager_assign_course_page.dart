@@ -8,10 +8,7 @@ class ManagerAssignCoursePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ManagerAssignViewModel>(
-      create: (_) => sl<ManagerAssignViewModel>(),
-      child: const _ManagerAssignContentView(),
-    );
+    return const _ManagerAssignContentView();
   }
 }
 

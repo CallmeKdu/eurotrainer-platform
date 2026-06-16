@@ -59,10 +59,10 @@ Future<void> initInjection() async {
   sl.registerFactory<CalendarViewModel>(() => CalendarViewModel(sl()));
   sl.registerFactory<ProfileViewModel>(() => ProfileViewModel(sl(), sl(), sl()));
   sl.registerLazySingleton<AccessibilityViewModel>(() => AccessibilityViewModel());
-  sl.registerFactory<AnalysesViewModel>(() => AnalysesViewModel());
+  sl.registerLazySingleton<AnalysesViewModel>(() => AnalysesViewModel());
   sl.registerFactory<ManagerHomeViewModel>(() => ManagerHomeViewModel());
   sl.registerFactory<ManagerAttendanceViewModel>(() => ManagerAttendanceViewModel());
   sl.registerLazySingleton<ManagerAssignViewModel>(() => ManagerAssignViewModel());
   sl.registerFactory<ManagerUploadViewModel>(() => ManagerUploadViewModel(sl()));
-  sl.registerFactory<ManagerFeedbackViewModel>(() => ManagerFeedbackViewModel());
+  sl.registerLazySingleton<ManagerFeedbackViewModel>(() => ManagerFeedbackViewModel(sl()));
 }
