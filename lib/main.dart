@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'presentation/viewmodels/auth_viewmodel.dart';
 import 'presentation/viewmodels/notes_viewmodel.dart';
-
 import 'presentation/viewmodels/training_viewmodel.dart';
-import 'presentation/viewmodels/notes_viewmodel.dart';
 import 'presentation/viewmodels/accessibility_viewmodel.dart';
 import 'presentation/views/login_page.dart';
+import 'presentation/views/auth_wrapper.dart';
 import 'core/theme/app_theme.dart';
 import 'core/injection.dart' as di;
 
@@ -22,16 +19,6 @@ void main() async {
   
   await di.initInjection(); 
 
-    runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => di.sl<AuthViewModel>()),
-          ChangeNotifierProvider(create: (_) => di.sl<NotesViewModel>()),
-        ],
-        child: const MyApp(),
-      ),
-    );
-  }
   runApp(
     MultiProvider(
       providers: [
@@ -59,7 +46,7 @@ class MyApp extends StatelessWidget {
         accessibility.fontSizeFactor,
         accessibility.isHighContrast,
       ),
-      home: const LoginPage(),
+      home: const AuthWrapper(),
     );
   }
 }

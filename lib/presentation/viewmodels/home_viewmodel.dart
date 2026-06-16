@@ -47,7 +47,7 @@ class HomeViewModel extends ChangeNotifier {
   String get nomeFormatado {
     final user = FirebaseAuth.instance.currentUser;
     final name = user?.displayName;
-    if (name == null || name.trim().isEmpty) return "usuário";
+    if (name == null || name.trim().isEmpty) return "Bernardo Silva";
     final partes = name.trim().split(RegExp(r'\s+'));
     if (partes.length == 1) return partes.first;
     return "${partes.first} ${partes.last}";

@@ -9,11 +9,6 @@ class NotesPage extends StatelessWidget {
   const NotesPage({super.key});
 
   @override
-  State<NotesPage> createState() => _NotesPageState();
-}
-
-class _NotesPageState extends State<NotesPage> {
-  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
@@ -24,9 +19,6 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   Widget _buildContent(BuildContext context) {
-    final notesViewModel = context.watch<NotesViewModel>();
-    final notes = notesViewModel.notes;
-
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
       child: Column(
@@ -61,7 +53,7 @@ class _NotesPageState extends State<NotesPage> {
               }
 
               if (viewModel.errorMessage.isNotEmpty && viewModel.notes.isEmpty) {
-                 return Center(child: Text(viewModel.errorMessage));
+                return Center(child: Text(viewModel.errorMessage));
               }
 
               if (viewModel.notes.isEmpty) {
@@ -90,29 +82,6 @@ class _NotesPageState extends State<NotesPage> {
               );
             },
           ),
-          // Grid de Notas
-          notes.isEmpty
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 60.0),
-                    child: Text(
-                      'Nenhuma anotação criada ainda.',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ),
-                )
-              : GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 400,
-                    mainAxisExtent: 280,
-                    crossAxisSpacing: 24,
-                    mainAxisSpacing: 24,
-                  ),
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) => NoteCard(note: notes[index]),
-                ),
         ],
       ),
     );
@@ -146,7 +115,6 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  Widget _buildFAB() {
   Widget _buildFAB(BuildContext context) {
     return Positioned(
       bottom: 40,
@@ -155,8 +123,6 @@ class _NotesPageState extends State<NotesPage> {
         onPressed: () {
           showDialog(
             context: context,
-            barrierDismissible: false,
-            builder: (_) => const NoteEditorDialog(),
             barrierDismissible: false, // Força a usar o botão Cancelar para sair
             builder: (_) => const NoteEditorDialog(), // Sem nota = Modo Criação
           );
@@ -166,5 +132,4 @@ class _NotesPageState extends State<NotesPage> {
       ),
     );
   }
-}
 }

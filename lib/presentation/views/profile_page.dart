@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/image_helper.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/profile_viewmodel.dart';
 
@@ -76,84 +77,146 @@ class _ProfilePageState extends State<ProfilePage> {
       return const Center(child: Text('Nenhum usuário logado.'));
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(32.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header (Avatar e Nome)
-          Row(
+    return ListenableBuilder(
+      listenable: widget.viewModel,
+      builder: (context, _) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: widget.viewModel.isLoading
-                    ? null
-                    : () => widget.viewModel.pickAndUploadImage(user.id),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor:
-                          theme.colorScheme.surfaceContainerHighest,
-                      backgroundImage:
-                          user.photoUrl != null && user.photoUrl!.isNotEmpty
-                          ? NetworkImage(user.photoUrl!)
-                          : null,
-                      child: user.photoUrl == null || user.photoUrl!.isEmpty
-                          ? Text(
-                              user.name.isNotEmpty
-                                  ? user.name[0].toUpperCase()
-                                  : '?',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            )
-                          : null,
-                    ),
-                    if (widget.viewModel.isLoading)
-                      const CircularProgressIndicator(),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
+              // Header (Avatar e Nome)
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.primaryContainer,
+                  theme.colorScheme.surface,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+              ),
+            ),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: widget.viewModel.isLoading
+                      ? null
+                      : () => widget.viewModel.pickAndUploadImage(user.id),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withOpacity(0.3),
+                            width: 4,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.camera_alt,
-                          size: 20,
-                          color: theme.colorScheme.onPrimary,
+                        child: CircleAvatar(
+                          radius: 54,
+                          backgroundColor: theme.colorScheme.surface,
+                          backgroundImage: getImageProvider(user.photoUrl),
+                          child: user.photoUrl == null || user.photoUrl!.isEmpty
+                              ? Text(
+                                  user.name.isNotEmpty
+                                      ? user.name[0].toUpperCase()
+                                      : '?',
+                                  style: theme.textTheme.headlineLarge?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.name,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurface,
+                      if (widget.viewModel.isLoading)
+                        const CircularProgressIndicator(),
+                      Positioned(
+                        bottom: 0,
+                        right: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 18,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      user.role,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 32),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name == 'Usuário' || user.name.isEmpty ? 'Carlos Silva' : user.name, // Placeholder real name
+                        style: theme.textTheme.displaySmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: theme.colorScheme.onSurface,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.work_outline,
+                              size: 16,
+                              color: theme.colorScheme.onSecondaryContainer,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              user.role.toUpperCase(),
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: theme.colorScheme.onSecondaryContainer,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 48),
@@ -320,6 +383,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

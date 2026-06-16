@@ -35,15 +35,6 @@ class HomePage extends StatelessWidget {
           },
         ),
       ],
-    // Instancia a HomeViewModel exclusivamente para a HomePage
-    // Usamos ProxyProvider para garantir que a HomeViewModel sempre receba o usuário atualizado
-    return ChangeNotifierProxyProvider<AuthViewModel, HomeViewModel>(
-      create: (_) => sl<HomeViewModel>(),
-      update: (_, authViewModel, homeViewModel) {
-        homeViewModel ??= sl<HomeViewModel>();
-        homeViewModel.updateUser(authViewModel.currentUser);
-        return homeViewModel;
-      },
       child: const _HomePageContent(),
     );
   }
@@ -122,7 +113,9 @@ class _HomePageContent extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        _CalendarCard(),
+                        Expanded(
+                          child: _CalendarCard(),
+                        ),
                         SizedBox(width: 20),
                         Expanded(
                           child: _CertificatesCard(),
@@ -213,7 +206,14 @@ class _CertificatesCard extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainLayout(initialRoute: '/certificates'),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.colorScheme.primaryContainer,
               foregroundColor: theme.colorScheme.onPrimaryContainer,
@@ -364,7 +364,7 @@ class _StatsCard extends StatelessWidget {
         children: [
           const SizedBox(height: 20),
           Text(
-            '92',
+            '33%',
             style: theme.textTheme.displayLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -378,7 +378,7 @@ class _StatsCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              'Top 15%',
+              'Em Progresso',
               style: theme.textTheme.labelSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onTertiaryContainer,
@@ -393,7 +393,7 @@ class _StatsCard extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 CircularProgressIndicator(
-                  value: 0.92,
+                  value: 0.33,
                   strokeWidth: 12,
                   backgroundColor: theme.colorScheme.surfaceContainerHighest,
                   color: theme.colorScheme.primary,
@@ -401,7 +401,7 @@ class _StatsCard extends StatelessWidget {
                 ),
                 Center(
                   child: Text(
-                    'PONTOS',
+                    'CONCLUÍDO',
                     style: theme.textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -415,19 +415,19 @@ class _StatsCard extends StatelessWidget {
           const SizedBox(height: 32),
           Text.rich(
             TextSpan(
-              text: 'Você está entre os ',
+              text: 'Você concluiu ',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               children: [
                 TextSpan(
-                  text: '15% melhores',
+                  text: '1 de 3',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
-                const TextSpan(text: ' do departamento.'),
+                const TextSpan(text: ' treinamentos disponíveis.'),
               ],
             ),
             textAlign: TextAlign.center,
@@ -474,7 +474,7 @@ class _NotesCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${notesViewModel.notesCount}',
+            '${notesViewModel.notes.length}',
             style: theme.textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurface,
@@ -482,7 +482,7 @@ class _NotesCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            notesViewModel.notesCount == 1 ? 'anotação salva' : 'anotações salvas',
+            notesViewModel.notes.length == 1 ? 'anotação salva' : 'anotações salvas',
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
@@ -560,63 +560,31 @@ class _CalendarEventItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final trainingViewModel = context.watch<TrainingViewModel>();
     
-    // Filtra apenas os próximos treinamentos não concluídos
-    final upcoming = trainingViewModel.trainings
-        .where((t) => !trainingViewModel.isCompleted(t.id))
-        .toList();
-        
-    final displayList = upcoming.take(3).toList();
-
-    return SizedBox(
-      width: 520,
-      height: 200,
-      child: _BentoCard(
-        title: 'Calendário',
-        child: SizedBox(
-          height: 120, // Altura interna estritamente fixa
-          child: displayList.isEmpty
-              ? const Center(
-                  child: Text(
-                    'não há treinamentos proximos agendados',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                )
-              : ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: displayList.length,
-                  itemBuilder: (context, index) {
-                    final training = displayList[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              training.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../../domain/models/note_model.dart';
-import 'package:provider/provider.dart';
 import '../../viewmodels/notes_viewmodel.dart';
 
 class NoteEditorDialog extends StatefulWidget {
@@ -27,11 +26,16 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
   late bool _isReadOnly;
   String? _lastSavedTime;
   bool _canSave = false;
+  
+  String? _currentNoteId;
+  DateTime? _currentNoteCreatedAt;
 
   @override
   void initState() {
     super.initState();
     _isReadOnly = widget.initialReadOnly;
+    _currentNoteId = widget.note?.id;
+    _currentNoteCreatedAt = widget.note?.createdAt;
 
     _titleController = TextEditingController(text: widget.note?.title ?? '');
     
@@ -85,55 +89,17 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
   Future<void> _handleSave() async {
     final viewModel = Provider.of<NotesViewModel>(context, listen: false);
-  void _handleSave() {
-    final now = DateTime.now();
-    final title = _titleController.text.trim();
-    final summary = _contentController.document.toPlainText().trim();
-    
-    final notesViewModel = Provider.of<NotesViewModel>(context, listen: false);
-    
-    if (widget.note == null) {
-      final newNote = NoteModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: title,
-        summary: summary,
-        date: "Hoje, ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}",
-        dateTime: now,
-        avatarType: NoteAvatarType.text,
-        avatarContent: title.isNotEmpty ? title[0].toUpperCase() : 'N',
-        iconType: NoteIconType.pin,
-      );
-      notesViewModel.addNote(newNote);
-    } else {
-      final updatedNote = NoteModel(
-        id: widget.note!.id,
-        title: title,
-        summary: summary,
-        date: "Editado hoje, ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}",
-        dateTime: now,
-        avatarType: widget.note!.avatarType,
-        avatarContent: title.isNotEmpty ? title[0].toUpperCase() : widget.note!.avatarContent,
-        iconType: widget.note!.iconType,
-      );
-      notesViewModel.updateNote(updatedNote);
-    }
-
-    setState(() {
-      _lastSavedTime =
-          "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
-      _canSave = false;
-      _isReadOnly = true;
-    });
-    
     final title = _titleController.text.trim();
     final summary = _contentController.document.toPlainText().trim();
     final contentDelta = jsonEncode(_contentController.document.toDelta().toJson());
 
     try {
-      if (widget.note == null) {
-        await viewModel.createNote(title, summary, contentDelta);
+      if (_currentNoteId == null) {
+        final newId = await viewModel.createNote(title, summary, contentDelta);
+        _currentNoteId = newId;
+        _currentNoteCreatedAt = DateTime.now();
       } else {
-        await viewModel.updateNote(widget.note!.id, title, summary, contentDelta, widget.note!.createdAt);
+        await viewModel.updateNote(_currentNoteId!, title, summary, contentDelta, _currentNoteCreatedAt ?? DateTime.now());
       }
 
       if (!mounted) return;

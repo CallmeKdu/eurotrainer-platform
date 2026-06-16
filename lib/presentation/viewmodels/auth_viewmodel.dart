@@ -65,6 +65,14 @@ class AuthViewModel extends ChangeNotifier {
         _isInitializing = false;
       }
       notifyListeners();
+    }, onError: (error) {
+      debugPrint('Erro no stream de autenticação: $error');
+      _currentStep = AuthStep.login;
+      _currentUser = null;
+      if (_isInitializing) {
+        _isInitializing = false;
+      }
+      notifyListeners();
     });
   }
 

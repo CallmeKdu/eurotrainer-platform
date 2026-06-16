@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../data/services/firebase_storage_service.dart';
@@ -58,11 +59,9 @@ class ProfileViewModel extends ChangeNotifier {
           ? extension
           : 'jpg';
 
-      final downloadUrl = await _storageService.uploadProfilePicture(
-        uid,
-        bytes,
-        validExtension,
-      );
+      // Use base64 data URI to avoid Firebase Storage CORS and setup issues
+      final String base64String = base64Encode(bytes);
+      final String downloadUrl = 'data:image/$validExtension;base64,$base64String';
 
       await _firestoreService.updateUser(uid, {'photoUrl': downloadUrl});
 

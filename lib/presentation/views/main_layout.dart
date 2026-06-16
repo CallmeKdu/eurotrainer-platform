@@ -8,6 +8,8 @@ import 'notes_page.dart';
 import 'home_page.dart';
 import 'calendar_page.dart';
 import 'profile_page.dart';
+import 'certificates_page.dart';
+import 'analyses_page.dart';
 import '../viewmodels/profile_viewmodel.dart';
 import '../viewmodels/training_viewmodel.dart';
 
@@ -39,9 +41,11 @@ class _MainLayoutState extends State<MainLayout> {
   String _getHeaderTitle() {
     switch (_activeRoute) {
       case '/trainings': return 'Treinamentos';
+      case '/analyses': return 'Análises de Desempenho';
       case '/notes': return 'Notas Rápidas';
       case '/calendario': return 'Calendário';
       case '/profile': return 'Meu Perfil';
+      case '/certificates': return 'Certificados';
       case '/home':
       default:
         return 'Dashboard';
@@ -53,12 +57,16 @@ class _MainLayoutState extends State<MainLayout> {
       case '/trainings':
         // Instanciamos a View dinamicamente e injetamos o seu respectivo ViewModel (MVVM)
         return TrainingView(viewModel: sl<TrainingViewModel>());
+      case '/analyses':
+        return const AnalysesPage();
       case '/notes':
         return const NotesPage();
       case '/calendario':
         return const CalendarPage();
       case '/profile':
         return ProfilePage(viewModel: sl<ProfileViewModel>());
+      case '/certificates':
+        return const CertificatesPage();
       case '/home':
       default:
         return const HomePage();

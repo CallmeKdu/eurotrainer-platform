@@ -2,12 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import 'dart:html' if (dart.library.html) 'dart:html' as html;
-import 'dart:js' if (dart.library.html) 'dart:js' as js;
-import 'dart:ui_web' if (dart.library.html) 'dart:ui_web' as ui_web;
-
 import '../../domain/models/training_model.dart';
 import '../viewmodels/course_player_viewmodel.dart';
+import 'courseplay_helper.dart';
 
 class CoursePlayPage extends StatefulWidget {
   final TrainingModel training;
@@ -33,34 +30,19 @@ class _CoursePlayPageState extends State<CoursePlayPage> {
 
     // Configura a comunicação bidirecional com o SCORM
     if (kIsWeb) {
-      // Use standard dart:html import logic for flutter web apps
-      // ignore: undefined_prefixed_name
-      js.context['onScormCommit'] = js.allowInterop((
-        dynamic status,
-        dynamic score,
-      ) {
+      registerScormCallback(widget.training.id, (status, score) {
         debugPrint(
           'Flutter Web: SCORM Commit recebido - Status: $status, Score: $score',
         );
         widget.viewModel.saveProgress(
           widget.training.id,
-          status.toString(),
-          double.tryParse(score.toString()) ?? 0.0,
+          status,
+          score,
         );
       });
 
       // Registra a IFrameElement no Flutter Web
-      // ignore: undefined_prefixed_name
-      ui_web.platformViewRegistry.registerViewFactory(_iframeId, (int viewId) {
-        // ignore: undefined_class
-        final iframe = html.IFrameElement()
-          ..src = widget.training.scormUrl
-          ..style.border = 'none'
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..allowFullscreen = true;
-        return iframe;
-      });
+      registerIframeViewFactory(_iframeId, widget.training.scormUrl);
     }
   }
 
@@ -68,8 +50,7 @@ class _CoursePlayPageState extends State<CoursePlayPage> {
   void dispose() {
     // Limpa a função global para evitar memory leaks
     if (kIsWeb) {
-      // ignore: undefined_prefixed_name
-      js.context['onScormCommit'] = null;
+      cleanupScormCallback();
     }
     super.dispose();
   }

@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import '../../views/login_page.dart';
-import '../../views/main_layout.dart';
+import '../../views/manager/manager_layout.dart';
 
-class AppSidebar extends StatelessWidget {
-  // 1. Criamos a variável que diz em qual página estamos
+class ManagerSidebar extends StatelessWidget {
   final String activeRoute;
   final void Function(String)? onNavigate;
 
-  const AppSidebar({
+  const ManagerSidebar({
     super.key,
-    this.activeRoute = '/home', // Por padrão, ele assume que é a Home
+    this.activeRoute = '/manager/home',
     this.onNavigate,
   });
 
@@ -39,11 +38,11 @@ class AppSidebar extends StatelessWidget {
                     color: theme.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.school, color: theme.colorScheme.primary),
+                  child: Icon(Icons.admin_panel_settings, color: theme.colorScheme.primary),
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'EuroAcademy',
+                  'Gestão',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -56,107 +55,91 @@ class AppSidebar extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                // 2. PAINEL
                 _SidebarItem(
                   icon: Icons.dashboard,
                   label: 'Painel',
-                  isActive:
-                      activeRoute == '/home', // Fica ativo se estiver na Home
+                  isActive: activeRoute == '/manager/home',
                   onTap: () {
-                    if (activeRoute == '/home')
-                      return; // Bloqueia o clique duplo
+                    if (activeRoute == '/manager/home') return;
                     if (onNavigate != null) {
-                      onNavigate!('/home');
+                      onNavigate!('/manager/home');
                     } else {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const MainLayout(initialRoute: '/home'),
-                        ),
-                      );
-                    }
-                  },
-                ),
-
-                _SidebarItem(
-                  icon: Icons.security,
-                  label: 'Treinamentos',
-                  isActive: activeRoute == '/trainings',
-                  onTap: () {
-                    if (activeRoute == '/trainings') return;
-                    if (onNavigate != null) {
-                      onNavigate!('/trainings');
-                    } else {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const MainLayout(initialRoute: '/trainings'),
+                          builder: (context) => const ManagerLayout(initialRoute: '/manager/home'),
                         ),
                       );
                     }
                   },
                 ),
                 _SidebarItem(
-                  icon: Icons.bar_chart,
-                  label: 'Análises',
-                  isActive: activeRoute == '/analyses',
+                  icon: Icons.checklist,
+                  label: 'Lista de Chamada',
+                  isActive: activeRoute == '/manager/attendance',
                   onTap: () {
-                    if (activeRoute == '/analyses') return;
+                    if (activeRoute == '/manager/attendance') return;
                     if (onNavigate != null) {
-                      onNavigate!('/analyses');
+                      onNavigate!('/manager/attendance');
                     } else {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MainLayout(initialRoute: '/analyses'),
+                          builder: (context) => const ManagerLayout(initialRoute: '/manager/attendance'),
                         ),
                       );
                     }
                   },
                 ),
-
-                // 3. NOTAS
                 _SidebarItem(
-                  icon: Icons.edit_document,
-                  label: 'Notas',
-                  isActive:
-                      activeRoute ==
-                      '/notes', // Fica "amarelão" se estiver nas notas
+                  icon: Icons.assignment_ind,
+                  label: 'Atribuir Cursos',
+                  isActive: activeRoute == '/manager/assign',
                   onTap: () {
-                    if (activeRoute == '/notes')
-                      return; // Bloqueia empilhar 3 vezes!
+                    if (activeRoute == '/manager/assign') return;
                     if (onNavigate != null) {
-                      onNavigate!('/notes');
+                      onNavigate!('/manager/assign');
                     } else {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const MainLayout(initialRoute: '/notes'),
+                          builder: (context) => const ManagerLayout(initialRoute: '/manager/assign'),
                         ),
                       );
                     }
                   },
                 ),
-                
-
-
                 _SidebarItem(
-                  icon: Icons.calendar_today,
-                  label: 'Calendário',
-                  isActive: activeRoute == '/calendario',
+                  icon: Icons.upload_file,
+                  label: 'Upload SCORM',
+                  isActive: activeRoute == '/manager/upload',
                   onTap: () {
-                    if (activeRoute == '/calendario') return;
+                    if (activeRoute == '/manager/upload') return;
                     if (onNavigate != null) {
-                      onNavigate!('/calendario');
+                      onNavigate!('/manager/upload');
                     } else {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const MainLayout(initialRoute: '/calendario'),
+                          builder: (context) => const ManagerLayout(initialRoute: '/manager/upload'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                _SidebarItem(
+                  icon: Icons.feedback,
+                  label: 'Feedbacks',
+                  isActive: activeRoute == '/manager/feedback',
+                  onTap: () {
+                    if (activeRoute == '/manager/feedback') return;
+                    if (onNavigate != null) {
+                      onNavigate!('/manager/feedback');
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ManagerLayout(initialRoute: '/manager/feedback'),
                         ),
                       );
                     }
@@ -164,18 +147,17 @@ class AppSidebar extends StatelessWidget {
                 ),
                 _SidebarItem(
                   icon: Icons.person,
-                  label: 'Perfil',
-                  isActive: activeRoute == '/profile',
+                  label: 'Perfil Gestor',
+                  isActive: activeRoute == '/manager/profile',
                   onTap: () {
-                    if (activeRoute == '/profile') return;
+                    if (activeRoute == '/manager/profile') return;
                     if (onNavigate != null) {
-                      onNavigate!('/profile');
+                      onNavigate!('/manager/profile');
                     } else {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const MainLayout(initialRoute: '/profile'),
+                          builder: (context) => const ManagerLayout(initialRoute: '/manager/profile'),
                         ),
                       );
                     }
@@ -212,7 +194,6 @@ class AppSidebar extends StatelessWidget {
   }
 }
 
-// O _SidebarItem continua exatamente igual!
 class _SidebarItem extends StatelessWidget {
   final IconData icon;
   final String label;

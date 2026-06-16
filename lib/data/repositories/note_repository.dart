@@ -14,8 +14,8 @@ class NoteRepository {
     });
   }
 
-  Future<void> createNote(String userId, NoteModel note) async {
-    await _noteService.createNote(userId, note.toMap());
+  Future<String> createNote(String userId, NoteModel note) async {
+    return await _noteService.createNote(userId, note.toMap());
   }
 
   Future<void> updateNote(String userId, NoteModel note) async {

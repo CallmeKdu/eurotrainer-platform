@@ -42,7 +42,14 @@ class AppFooter extends StatelessWidget {
                     builder: (context) => AlertDialog(
                       title: const Text('Termos de Privacidade'),
                       content: const SingleChildScrollView(
-                        child: Text('Estes são os Termos de Privacidade da Euro Academy...'),
+                        child: Text(
+                          'Política de Privacidade da EuroAcademy\n\n'
+                          '1. Coleta de Dados: Coletamos informações de perfil e desempenho nos treinamentos para personalizar sua experiência.\n'
+                          '2. Uso das Informações: Seus dados são utilizados exclusivamente para fins de treinamento corporativo e avaliação de desempenho.\n'
+                          '3. Compartilhamento: Não compartilhamos seus dados com terceiros sem consentimento explícito, salvo exigências legais da Eurofarma.\n'
+                          '4. Segurança: Empregamos as melhores práticas de segurança da informação para proteger seus dados.\n\n'
+                          'Dúvidas? Entre em contato com o suporte da plataforma.',
+                        ),
                       ),
                       actions: [
                         TextButton(
@@ -62,7 +69,14 @@ class AppFooter extends StatelessWidget {
                     builder: (context) => AlertDialog(
                       title: const Text('Termos de Serviço'),
                       content: const SingleChildScrollView(
-                        child: Text('Estes são os Termos de Serviço da Euro Academy...'),
+                        child: Text(
+                          'Termos de Serviço da EuroAcademy\n\n'
+                          '1. Aceitação: Ao acessar a plataforma, você concorda com estes termos de uso corporativo.\n'
+                          '2. Uso da Plataforma: O sistema é de uso exclusivo para colaboradores e parceiros da Eurofarma. É proibido o compartilhamento de credenciais.\n'
+                          '3. Propriedade Intelectual: Todo o conteúdo (vídeos, SCORMs, PDFs) é de propriedade exclusiva da Eurofarma.\n'
+                          '4. Responsabilidades: O usuário compromete-se a concluir os treinamentos designados nos prazos estabelecidos pela gestão.\n'
+                          '5. Atualizações: Estes termos podem ser modificados a qualquer momento, sendo sua responsabilidade revisá-los periodicamente.',
+                        ),
                       ),
                       actions: [
                         TextButton(

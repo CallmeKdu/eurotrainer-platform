@@ -13,12 +13,13 @@ class FirestoreNoteService {
         .snapshots();
   }
 
-  Future<void> createNote(String userId, Map<String, dynamic> data) async {
-    await _firestore
+  Future<String> createNote(String userId, Map<String, dynamic> data) async {
+    final docRef = await _firestore
         .collection('users')
         .doc(userId)
         .collection('notes')
         .add(data);
+    return docRef.id;
   }
 
   Future<void> updateNote(String userId, String noteId, Map<String, dynamic> data) async {

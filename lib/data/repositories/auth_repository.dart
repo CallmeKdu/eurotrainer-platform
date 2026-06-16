@@ -57,7 +57,15 @@ class AuthRepository {
       if (user == null) return Stream.value(null);
 
       return _firestoreService.getUserStream(user.uid).map((snapshot) {
-        if (!snapshot.exists || snapshot.data() == null) return null;
+        if (!snapshot.exists || snapshot.data() == null) {
+          // Se o documento não existe no Firestore, criamos um perfil básico fallback
+          final fallbackData = {
+            'name': user.displayName ?? user.email?.split('@').first ?? 'Usuário',
+            'email': user.email ?? '',
+            'role': 'aluno',
+          };
+          return UserEntity.fromFirestore(fallbackData, user.uid);
+        }
         final data = snapshot.data()!;
         final firestoreData = {
           'name':
@@ -68,6 +76,14 @@ class AuthRepository {
           'bio': data['bio'],
         };
         return UserEntity.fromFirestore(firestoreData, user.uid);
+      }).onErrorReturnWith((error, stackTrace) {
+        // Se houver erro de permissão ou rede no Firestore, retornamos perfil básico baseada no Auth
+        final fallbackData = {
+          'name': user.displayName ?? user.email?.split('@').first ?? 'Usuário',
+          'email': user.email ?? '',
+          'role': 'aluno',
+        };
+        return UserEntity.fromFirestore(fallbackData, user.uid);
       });
     });
   }

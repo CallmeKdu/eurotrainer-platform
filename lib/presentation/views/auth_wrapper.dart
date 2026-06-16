@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import 'login_page.dart';
 import 'main_layout.dart';
+import 'manager/manager_layout.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -26,6 +27,10 @@ class AuthWrapper extends StatelessWidget {
         // ou se não é exigido MFA (determinado pelo currentStep ou currentUser).
         if (authViewModel.currentUser != null &&
             authViewModel.currentStep == AuthStep.authenticated) {
+          
+          if (authViewModel.currentUser!.email == 'gestor3@eurofarma.com') {
+            return const ManagerLayout(initialRoute: '/manager/home');
+          }
           return const MainLayout(initialRoute: '/home');
         }
 
